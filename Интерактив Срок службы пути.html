@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Срок службы пути — интерактив ОТР для молодёжи</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --navy:#002060; --red:#E52A18; --ink:#1f2430; --muted:#6b7280;
+    --bg:#eef1f6; --card:#ffffff; --line:#e4e9f2;
+    --head:'Montserrat',"Segoe UI",sans-serif;
+    --body:'Open Sans',"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--body);background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;}
+
+  .site-header{background:var(--navy);padding:13px 0;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(0,0,0,.18);}
+  .site-header .inner{max-width:1120px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;}
+  .brand{display:flex;align-items:center;gap:13px;color:#fff;font-family:var(--head);font-weight:700;font-size:15px;letter-spacing:.3px;}
+  .brand .mark{width:36px;height:36px;border-radius:9px;background:var(--red);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:21px;color:#fff;font-family:var(--head);}
+  .brand small{display:block;font-weight:500;font-size:11px;color:#aeb9cf;letter-spacing:.5px;}
+  .header-tag{color:#aeb9cf;font-size:13px;font-weight:600;font-family:var(--head);text-transform:uppercase;letter-spacing:1.5px;}
+
+  .hero{background:linear-gradient(135deg,#002060 0%,#0a2f7a 55%,#001845 100%);color:#fff;padding:56px 24px 64px;position:relative;overflow:hidden;}
+  .hero::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 40px,rgba(229,42,24,.09) 40px 42px);}
+  .hero .inner{position:relative;z-index:1;max-width:1120px;margin:0 auto;}
+  .kicker{color:var(--red);font-family:var(--head);font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:2.5px;}
+  .hero h1{font-family:var(--head);font-weight:800;font-size:42px;line-height:1.14;margin:12px 0 16px;max-width:780px;}
+  .hero p.lead{font-size:17px;color:#dbe4f6;max-width:720px;}
+
+  .band{background:#fff;border-radius:16px;box-shadow:0 14px 36px rgba(0,32,96,.10);padding:22px 28px;max-width:1120px;margin:-32px auto 0;position:relative;z-index:2;}
+  .band .tag{color:var(--red);font-family:var(--head);font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:1.5px;}
+  .band p{font-size:16px;margin-top:6px;color:var(--ink);}
+
+  .container{max-width:1120px;margin:0 auto;padding:0 24px;}
+  .section{margin-top:38px;}
+  .section-head{margin-bottom:16px;}
+  .section-head h2{font-family:var(--head);font-size:25px;font-weight:800;color:var(--navy);display:inline-block;position:relative;padding-bottom:9px;}
+  .section-head h2::after{content:"";position:absolute;left:0;bottom:0;width:56px;height:4px;background:var(--red);border-radius:2px;}
+  .section-head .hint{color:var(--muted);font-size:14px;margin-top:9px;}
+
+  .card{background:var(--card);border-radius:16px;box-shadow:0 8px 26px rgba(0,32,96,.07);padding:24px 26px;}
+  .card + .card{margin-top:0;}
+
+  .control{margin:20px 0;}
+  .control .label-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+  .control label{font-weight:600;font-size:15px;color:var(--ink);}
+  .control .val{font-weight:800;color:var(--red);font-size:17px;font-family:var(--head);font-variant-numeric:tabular-nums;}
+  .ticks{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px;}
+  input[type=range]{width:100%;-webkit-appearance:none;height:7px;border-radius:8px;background:linear-gradient(90deg,var(--navy),var(--red));outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--navy);cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.25);}
+  input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--navy);cursor:pointer;}
+
+  .btn{display:inline-block;background:var(--red);color:#fff;border:none;border-radius:10px;padding:11px 20px;font-weight:700;font-size:14px;font-family:var(--head);cursor:pointer;transition:.15s;}
+  .btn:hover{background:#c3210f;transform:translateY(-1px);}
+
+  .wagon-pick{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:16px;}
+  .wagon-icon{font-size:46px;line-height:1;cursor:pointer;background:var(--bg);border:2px dashed #b9c2d0;border-radius:14px;padding:10px 16px;transition:.15s;}
+  .wagon-icon:hover{border-color:var(--red);background:#fdeceb;}
+  .wagon-icon.active{border:2px solid var(--red);background:#fdeceb;}
+  .cargo-chosen{font-size:14px;color:var(--navy);font-weight:700;}
+  .cargo-chosen small{display:block;color:var(--muted);font-weight:500;font-size:12px;}
+  .cargo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:10px;margin-bottom:8px;}
+  .cargo-btn{background:#fff;border:2px solid var(--line);border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;transition:.15s;}
+  .cargo-btn:hover{border-color:var(--navy);}
+  .cargo-btn.active{border-color:var(--red);background:#fdeceb;}
+  .cargo-btn .emoji{font-size:28px;}
+  .cargo-btn .nm{font-size:12px;font-weight:600;color:var(--navy);margin-top:4px;}
+  .cargo-note{font-size:12.5px;color:var(--muted);background:var(--bg);border-radius:10px;padding:11px 13px;margin:6px 0 14px;}
+
+  .result-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:6px;}
+  .metric{background:var(--bg);border-radius:12px;padding:15px 17px;}
+  .metric .m-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:600;}
+  .metric .m-val{font-size:23px;font-weight:800;color:var(--navy);margin-top:4px;font-family:var(--head);font-variant-numeric:tabular-nums;}
+  .metric .m-val small{font-size:13px;color:var(--muted);font-weight:600;}
+
+  .gauge-wrap{margin-top:20px;}
+  .gauge{height:20px;border-radius:11px;background:#e3e7ee;overflow:hidden;}
+  .gauge .fill{height:100%;width:0%;background:linear-gradient(90deg,#2e9e4f,#7bc043);transition:width .25s ease,background .25s ease;}
+  .verdict{margin-top:18px;padding:15px 18px;border-radius:12px;font-size:16px;font-weight:700;}
+  .v-green{background:#e6f6ec;color:#1d7a39;border-left:5px solid #2e9e4f;}
+  .v-orange{background:#fff3e6;color:#a85b00;border-left:5px solid #f0962b;}
+  .v-red{background:#fdeceb;color:#b42318;border-left:5px solid var(--red);}
+
+  .formula{margin-top:16px;font-size:12.5px;color:var(--muted);background:var(--bg);border-radius:10px;padding:12px 14px;font-family:"Consolas",monospace;}
+  .note{font-size:12px;color:var(--muted);margin-top:12px;font-style:italic;}
+
+  .catbox{background:#f3f6fb;border:1px solid #d4dcec;border-radius:12px;padding:15px 17px;margin-top:6px;}
+  .catbox .cat-name{font-size:17px;font-weight:800;color:var(--navy);font-family:var(--head);}
+  .catbox .cat-detail{font-size:13px;color:var(--muted);margin-top:4px;}
+
+  .toggle{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+  .toggle .tbtn{background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:9px 16px;cursor:pointer;font-weight:600;font-size:13px;color:var(--navy);font-family:var(--head);}
+  .toggle .tbtn.active{border-color:var(--red);background:#fdeceb;}
+
+  .chart-wrap{margin-top:18px;background:var(--bg);border-radius:12px;padding:16px;}
+  .chart-wrap .m-label{color:var(--muted);text-transform:uppercase;font-size:11px;font-weight:700;letter-spacing:.6px;margin-bottom:8px;}
+
+  footer{margin-top:40px;background:var(--navy);color:#aeb9cf;text-align:center;font-size:12px;padding:22px 24px;}
+  footer b{color:#fff;font-family:var(--head);}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <div class="brand">
+      <span class="mark">У</span>
+      <span>ОТР для молодёжи<small>Корпоративный университет РЖД</small></span>
+    </div>
+    <div class="header-tag">Адаптационная программа</div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="inner">
+    <div class="kicker">Интерактивная лаборатория</div>
+    <h1>Через сколько ремонтировать этот участок пути?</h1>
+    <p class="lead">Вы — руководители полигона. Задайте параметры участка и движения — модель покажет срок службы пути, пропускную способность и график износа.</p>
+  </div>
+</section>
+
+<div class="band">
+  <div class="tag">Легенда задания</div>
+  <p>Представьте: в вашем управлении есть <b>участок железнодорожного пути длиной 20&nbsp;км</b> с автоблокировкой. Как руководители полигона, вы планируете движение, определяете <b>через какой срок</b> участок потребует ремонта и справляется ли он с заданной интенсивностью с учётом технологических окон.</p>
+</div>
+
+<div class="container">
+
+  <!-- 1. Участок и пропускная способность -->
+  <div class="section">
+    <div class="section-head">
+      <h2>1. Участок и его пропускная способность</h2>
+      <div class="hint">Сначала выберите тип участка — от этого зависят время технологического окна и максимальное число поездов.</div>
+    </div>
+    <div class="card">
+      <div class="toggle" id="trackToggle">
+        <div class="tbtn active" data-mode="2">Двухпутный участок</div>
+        <div class="tbtn" data-mode="1">Однопутный участок</div>
+      </div>
+      <div class="toggle" id="railToggle" style="margin-top:14px;">
+        <div class="tbtn" data-rail="50">Рельс Р50</div>
+        <div class="tbtn active" data-rail="65">Рельс Р65</div>
+        <div class="tbtn" data-rail="75">Рельс Р75</div>
+      </div>
+      <div class="note" id="railNote">Рельс Р65 — основной магистральный рельс; базовая норма пропущенного тоннажа.</div>
+      <div class="result-grid">
+        <div class="metric"><div class="m-label">Технологическое окно, мин/сут</div><div class="m-val" id="winMin">75</div></div>
+        <div class="metric"><div class="m-label">Макс. поездов в сутки (одно направление)</div><div class="m-val" id="capMaxTop">—</div></div>
+      </div>
+      <div class="note" id="capNote"></div>
+      <div class="formula">Формула: N = (1440 − W) · m / (I · α), где W — время окна (двухпутный 75 мин, однопутный 110 мин), m — число путей в направлении (двухпутный 1, однопутный 0,5), I = 10 мин, α = 0,90. Ползунок «пропущенные поезда» ограничен этим значением.</div>
+    </div>
+  </div>
+
+  <!-- 2. Режим движения -->
+  <div class="section">
+    <div class="section-head">
+      <h2>2. Режим движения на участке</h2>
+      <div class="hint">Интенсивность и скорость. Ползунок поездов ограничен пропускной способностью участка (<span id="trainMaxLabel">—</span> поездов/сут).</div>
+    </div>
+    <div class="card">
+      <button class="btn" id="randomBtn">🎲 Случайный сценарий</button>
+      <div class="control" style="margin-top:20px;">
+        <div class="label-row"><label for="trains">Пропущенные поезда в сутки (в одном направлении)</label><span class="val" id="trainsVal">60</span></div>
+        <input type="range" id="trains" min="5" max="160" step="1" value="60">
+      </div>
+      <div class="control">
+        <div class="label-row"><label for="speedIdx">Средняя скорость движения</label><span class="val" id="speedVal">80 км/ч</span></div>
+        <input type="range" id="speedIdx" min="0" max="10" step="1" value="6">
+        <div class="ticks"><span>0</span><span>5</span><span>15</span><span>25</span><span>40</span><span>60</span><span>80</span><span>100</span><span>120</span><span>140</span><span>160</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Подвижной состав -->
+  <div class="section">
+    <div class="section-head">
+      <h2>3. Подвижной состав — масса поезда (брутто)</h2>
+      <div class="hint">Нажмите на вагон, выберите груз, задайте количество вагонов — масса поезда определится автоматически.</div>
+    </div>
+    <div class="card">
+      <div class="wagon-pick">
+        <div class="wagon-icon active" id="wagonIcon" title="Нажмите, чтобы выбрать груз">🚃</div>
+        <div class="cargo-chosen">Груз: <b id="chosenName">Металл</b>
+          <small id="chosenMeta">полувагон · 60 т на вагон</small>
+        </div>
+      </div>
+      <div class="cargo-grid" id="cargoGrid"></div>
+      <div class="cargo-note" id="cargoNote">Металл (прокат) перевозится в полувагонах с полной грузоподъёмностью — 60 т на вагон.</div>
+      <div class="control" style="margin-top:14px;">
+        <div class="label-row"><label for="wagons">Количество вагонов в поезде</label><span class="val" id="wagonsVal">60</span></div>
+        <input type="range" id="wagons" min="40" max="71" step="1" value="60">
+      </div>
+      <div class="result-grid">
+        <div class="metric"><div class="m-label">Масса груза в поезде</div><div class="m-val" id="cargoMass">3600 <small>т</small></div></div>
+        <div class="metric"><div class="m-label">Масса поезда брутто</div><div class="m-val" id="brutto">3900 <small>т</small></div></div>
+      </div>
+      <div class="note">Брутто = масса груза во всех вагонах + ~300 т (два локомотива в кратной тяге).</div>
+    </div>
+  </div>
+
+  <!-- 4. Категория пути -->
+  <div class="section">
+    <div class="section-head">
+      <h2>4. Категория пути — определяется автоматически</h2>
+      <div class="hint">Зависит от выбранной скорости и массы поезда (упрощённая классификация).</div>
+    </div>
+    <div class="card">
+      <div class="catbox">
+        <div class="cat-name" id="catName">—</div>
+        <div class="cat-detail" id="catDetail">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Результат -->
+  <div class="section">
+    <div class="section-head">
+      <h2>5. Результат расчёта и износ пути</h2>
+      <div class="hint">Пересчёт мгновенный при любом изменении входных данных.</div>
+    </div>
+    <div class="card">
+      <div class="result-grid">
+        <div class="metric"><div class="m-label">Динамический коэффициент Кд</div><div class="m-val" id="kd">—</div></div>
+        <div class="metric"><div class="m-label">Пропущенный тоннаж в год</div><div class="m-val" id="annual">— <small>млн т</small></div></div>
+        <div class="metric"><div class="m-label">Срок службы до ремонта</div><div class="m-val" id="life">— <small>лет</small></div></div>
+        <div class="metric"><div class="m-label">Поездов до ремонта</div><div class="m-val" id="count">—</div></div>
+      </div>
+      <div class="gauge-wrap">
+        <div class="gauge"><div class="fill" id="gaugeFill"></div></div>
+        <div class="note" id="gaugeText">Накопленный износ относительно нормы.</div>
+      </div>
+      <div class="verdict v-green" id="verdict">—</div>
+      <div class="chart-wrap">
+        <div class="m-label">Накопленный пропущенный тоннаж и момент ремонта</div>
+        <canvas id="wearChart" height="140"></canvas>
+      </div>
+      <div class="formula" id="formula"></div>
+      <div class="note">Модель учебная: Кд = 1 + V/200; годовой тоннаж = N·365·M·Кд / 10⁶ (млн т); срок = R_норма / годовой тоннаж. Категория и норма — упрощённо; реальные решения принимаются по ПТЭ и отраслевым регламентам.</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <b>Проект «ОТР для молодёжи»</b> · Корпоративный университет РЖД · демонстрационный интерактив
+</footer>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const fmt = n => Math.round(n).toLocaleString('ru-RU');
+
+  const SPEEDS = [0,5,15,25,40,60,80,100,120,140,160];
+  const CARGOS = [
+    {key:'metal', emoji:'🔩', name:'Металл',        wagon:'полувагон', t:60, note:'Металл (прокат) возится в полувагонах с полной грузоподъёмностью — 60 т на вагон.'},
+    {key:'coal',  emoji:'⚫', name:'Уголь',         wagon:'полувагон', t:69, note:'Уголь — сыпучий энергетический груз, близок к полной грузоподъёмности (≈69 т на вагон).'},
+    {key:'stone', emoji:'🪨', name:'Щебень',        wagon:'полувагон', t:70, note:'Щебень (балласт) — плотный сыпучий груз, до 70 т на вагон.'},
+    {key:'grain', emoji:'🌾', name:'Зерно',         wagon:'хоппер',    t:55, note:'Зерно — сыпучий продовольственный груз, ≈55 т на вагон.'},
+    {key:'oil',   emoji:'🛢', name:'Нефтепродукты', wagon:'цистерна',  t:66, note:'Нефтепродукты (налив) — высокая плотность, ≈66 т на вагон.'},
+    {key:'wood',  emoji:'🪵', name:'Лес',           wagon:'платформа', t:45, note:'Лесоматериалы — объёмный груз, неполная загрузка, ≈45 т на вагон.'},
+    {key:'cont',  emoji:'📦', name:'Контейнеры',    wagon:'фитинг. пл.', t:64, note:'Контейнеры — два 20-фут или один 40-фут, ≈64 т на платформу.'},
+    {key:'fert',  emoji:'🧪', name:'Удобрения',     wagon:'хоппер',    t:60, note:'Минеральные удобрения — ≈60 т на вагон.'}
+  ];
+  const LOCO_MASS = 300;
+  const ALPHA = 0.90;
+  const INTERVAL = 10;
+  const WINDOW = {2:75, 1:110};
+  const RAILS = {
+    50: {name:'Р50', factor:0.5, note:'Рельс Р50 — лёгкий, для малодеятельных линий; низшая норма пропущенного тоннажа.'},
+    65: {name:'Р65', factor:1.0, note:'Рельс Р65 — основной магистральный рельс; базовая норма пропущенного тоннажа.'},
+    75: {name:'Р75', factor:1.5, note:'Рельс Р75 — тяжёлый, для грузонапряжённых линий; высшая норма тоннажа.'}
+  };
+  let trackMode = 2;
+  let railType = 65;
+  let currentCargo = CARGOS[0];
+  let wearChart = null;
+
+  const grid = $('cargoGrid');
+  CARGOS.forEach(c => {
+    const b = document.createElement('div');
+    b.className = 'cargo-btn' + (c.key === currentCargo.key ? ' active' : '');
+    b.dataset.key = c.key;
+    b.innerHTML = '<div class="emoji">' + c.emoji + '</div><div class="nm">' + c.name + '</div>';
+    b.addEventListener('click', () => selectCargo(c.key));
+    grid.appendChild(b);
+  });
+
+  function selectCargo(key){
+    currentCargo = CARGOS.find(c => c.key === key);
+    document.querySelectorAll('.cargo-btn').forEach(el => el.classList.toggle('active', el.dataset.key === key));
+    $('chosenName').textContent = currentCargo.name;
+    $('chosenMeta').textContent = currentCargo.wagon + ' · ' + currentCargo.t + ' т на вагон';
+    $('cargoNote').textContent = currentCargo.note;
+    $('wagonIcon').classList.add('active');
+    recalc();
+  }
+  $('wagonIcon').addEventListener('click', () => $('wagonIcon').classList.toggle('active'));
+
+  function capacityOneDir(){
+    const m = (trackMode === 2) ? 1 : 0.5;
+    return (1440 - WINDOW[trackMode]) * m / (INTERVAL * ALPHA);
+  }
+
+  function updateTrainLimit(){
+    const cap = capacityOneDir();
+    const maxv = Math.ceil(cap);
+    const t = $('trains');
+    t.max = maxv;
+    if(+t.value > maxv) t.value = maxv;
+    $('trainMaxLabel').textContent = maxv;
+    $('capMaxTop').textContent = maxv;
+    $('winMin').textContent = WINDOW[trackMode];
+  }
+
+  document.querySelectorAll('#trackToggle .tbtn').forEach(el => {
+    el.addEventListener('click', () => {
+      trackMode = +el.dataset.mode;
+      document.querySelectorAll('#trackToggle .tbtn').forEach(x => x.classList.toggle('active', x === el));
+      updateTrainLimit();
+      recalc();
+    });
+  });
+
+  document.querySelectorAll('#railToggle .tbtn').forEach(el => {
+    el.addEventListener('click', () => {
+      railType = +el.dataset.rail;
+      document.querySelectorAll('#railToggle .tbtn').forEach(x => x.classList.toggle('active', x === el));
+      recalc();
+    });
+  });
+
+  function getCategory(V, M){
+    let speedClass, baseR;
+    if(V <= 25){ speedClass='маневровый / станционный'; baseR=1500; }
+    else if(V <= 80){ speedClass='участковый (V 40–80)'; baseR=1100; }
+    else if(V <= 120){ speedClass='магистральный грузовой (V 100–120)'; baseR=900; }
+    else if(V <= 140){ speedClass='скоростной (V 140)'; baseR=600; }
+    else { speedClass='высокоскоростной (V 160)'; baseR=400; }
+    let massClass, massFactor;
+    if(M >= 6000){ massClass='тяжеловесный'; massFactor=0.8; }
+    else if(M >= 4000){ massClass='нормальный'; massFactor=1.0; }
+    else { massClass='облегчённый'; massFactor=1.15; }
+    const rail = RAILS[railType];
+    const R = Math.round(baseR * massFactor * rail.factor);
+    return {speedClass, massClass, railName: rail.name, R};
+  }
+
+  function drawChart(years, cum, R){
+    const ctx = $('wearChart').getContext('2d');
+    const labels = years.map(y => y.toFixed(1));
+    const thresh = years.map(() => R);
+    if(wearChart) wearChart.destroy();
+    wearChart = new Chart(ctx, {
+      type:'line',
+      data:{ labels, datasets:[
+        {label:'Накопленный тоннаж, млн т', data:cum, borderColor:'#002060', backgroundColor:'rgba(0,32,96,.12)', fill:true, tension:.25, pointRadius:0},
+        {label:'Норма до ремонта', data:thresh, borderColor:'#E52A18', borderDash:[6,4], fill:false, pointRadius:0}
+      ]},
+      options:{ responsive:true, plugins:{legend:{labels:{font:{size:11}}}}, scales:{x:{title:{display:true,text:'Годы'},ticks:{font:{size:10}}}, y:{title:{display:true,text:'млн т'},ticks:{font:{size:10}}}} }
+    });
+  }
+
+  function recalc(){
+    const N = +$('trains').value;
+    const idx = +$('speedIdx').value;
+    const V = SPEEDS[idx];
+    const w = +$('wagons').value;
+
+    $('trainsVal').textContent = N;
+    $('speedVal').textContent = V + ' км/ч';
+    $('wagonsVal').textContent = w;
+
+    const cargoMass = w * currentCargo.t;
+    const brutto = cargoMass + LOCO_MASS;
+    $('cargoMass').innerHTML = fmt(cargoMass) + ' <small>т</small>';
+    $('brutto').innerHTML = fmt(brutto) + ' <small>т</small>';
+
+    const cat = getCategory(V, brutto);
+    $('catName').textContent = 'Категория: ' + cat.speedClass + ', ' + cat.massClass + ' режим · рельс ' + cat.railName;
+    $('catDetail').innerHTML = 'V = ' + V + ' км/ч · M = ' + fmt(brutto) + ' т · рельс ' + cat.railName + ' · норма пропущенного тоннажа до ремонта: <b>' + cat.R + '</b> млн т';
+    $('railNote').textContent = RAILS[railType].note;
+
+    const Kd = 1 + V / 200;
+    const annual = N * 365 * brutto * Kd / 1e6;
+    const lifeYears = cat.R / annual;
+    const trainsToRepair = cat.R * 1e6 / (brutto * Kd);
+
+    $('kd').textContent = Kd.toFixed(2);
+    $('annual').innerHTML = annual.toFixed(1) + ' <small>млн т</small>';
+    if(lifeYears >= 1000){ $('life').innerHTML = '&gt; 1000 <small>лет</small>'; }
+    else if(lifeYears >= 1){ $('life').innerHTML = lifeYears.toFixed(1) + ' <small>лет</small>'; }
+    else { $('life').innerHTML = (lifeYears*12).toFixed(1) + ' <small>мес.</small>'; }
+    $('count').textContent = fmt(trainsToRepair);
+
+    let pct = Math.min(100, (30 / lifeYears) * 100);
+    if(!isFinite(lifeYears) || lifeYears <= 0) pct = 100;
+    const fill = $('gaugeFill');
+    fill.style.width = pct + '%';
+    if(pct < 50){ fill.style.background='linear-gradient(90deg,#2e9e4f,#7bc043)'; }
+    else if(pct < 85){ fill.style.background='linear-gradient(90deg,#f0962b,#f7c46b)'; }
+    else { fill.style.background='linear-gradient(90deg,#b42318,#e52a18)'; }
+    $('gaugeText').textContent = 'При таком режиме за 30 лет путь накопит ' + pct.toFixed(0) + '% нормы пропущенного тоннажа до ремонта.';
+
+    const v = $('verdict');
+    const date = new Date(); date.setDate(date.getDate() + lifeYears*365);
+    const dateStr = date.toLocaleDateString('ru-RU',{year:'numeric',month:'long'});
+    if(lifeYears < 1){ v.className='verdict v-red'; v.textContent='⚠ Внеплановый ремонт: ресурс исчерпан менее чем за год (ориентировочно к ' + dateStr + ').'; }
+    else if(lifeYears < 3){ v.className='verdict v-orange'; v.textContent='Плановый ремонт в ближайшие годы — ориентировочно к ' + dateStr + '.'; }
+    else { v.className='verdict v-green'; v.textContent='✓ Ресурс пути достаточен — ремонт ориентировочно не ранее ' + dateStr + '.'; }
+
+    $('formula').textContent =
+      'Кд = 1 + ' + V + '/200 = ' + Kd.toFixed(2) + '  |  ' +
+      'Тгод = ' + N + '×365×' + fmt(brutto) + '×' + Kd.toFixed(2) + '/1e6 = ' + annual.toFixed(1) + ' млн т  |  ' +
+      'Tслужбы = ' + cat.R + ' / ' + annual.toFixed(1) + ' = ' + lifeYears.toFixed(1) + ' лет';
+
+    const horizon = Math.min(60, Math.max(6, lifeYears * 1.3));
+    const steps = 60, years = [], cum = [];
+    for(let i=0;i<=steps;i++){ const yr = horizon*i/steps; years.push(yr); cum.push(+(annual*yr).toFixed(1)); }
+    drawChart(years, cum, cat.R);
+
+    const cap = capacityOneDir();
+    const load = N / cap * 100;
+    if(load >= 98){ $('capNote').textContent = 'Загрузка ' + load.toFixed(0) + '% от пропускной способности (' + Math.round(cap) + ' поездов/сут) — участок работает на пределе.'; }
+    else { $('capNote').textContent = 'Загрузка ' + load.toFixed(0) + '% от пропускной способности (' + Math.round(cap) + ' поездов/сут в одном направлении). Резерв есть.'; }
+  }
+
+  function randomScenario(){
+    updateTrainLimit();
+    const cap = capacityOneDir();
+    $('trains').value = 5 + Math.floor(Math.random() * Math.max(1, (Math.ceil(cap) - 5)));
+    $('speedIdx').value = Math.floor(Math.random()*SPEEDS.length);
+    const ck = CARGOS[Math.floor(Math.random()*CARGOS.length)].key;
+    $('wagons').value = 40 + Math.floor(Math.random()*32);
+    trackMode = Math.random() < 0.5 ? 2 : 1;
+    document.querySelectorAll('#trackToggle .tbtn').forEach(x => x.classList.toggle('active', +x.dataset.mode === trackMode));
+    const rails = [50,65,75];
+    railType = rails[Math.floor(Math.random()*rails.length)];
+    document.querySelectorAll('#railToggle .tbtn').forEach(x => x.classList.toggle('active', +x.dataset.rail === railType));
+    updateTrainLimit();
+    selectCargo(ck);
+  }
+  $('randomBtn').addEventListener('click', randomScenario);
+
+  ['trains','speedIdx','wagons'].forEach(id => $(id).addEventListener('input', recalc));
+  updateTrainLimit();
+  recalc();
+</script>
+</body>
+</html>
