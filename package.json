@@ -1,0 +1,7 @@
+{
+  "name": "otr-quiz",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "npx -y live-server --port=3000 --no-browser"
+  }
+}
