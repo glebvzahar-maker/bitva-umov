@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ОТР · Основы технологии работы — ОТР для молодёжи</title>
+<meta name="description" content="Интерактивный лендинг программы «Основы технологии работы»: масштаб холдинга, инфраструктура, подвижной состав, управление перевозками и взгляд за горизонт.">
+<meta name="theme-color" content="#070b12">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23070b12'/><text x='50' y='72' font-size='58' text-anchor='middle' fill='%23d8b787'>✦</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Archivo:wght@300;400;600&family=Big+Shoulders+Display:wght@800&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="assets/hero-night.jpg">
+<style>
+:root{
+  --ink:#070b12; --pearl:#f3f6fa; --silver:#aebbcd; --faint:#98a6bb;
+  --gold:#d8b787; --gold-bright:#eacf9f; --gold-line:rgba(216,183,135,.32);
+  --orange:#ff8347; --danger:#e0565c; --cyan:#8fd8ec;
+  --panel:rgba(7,11,19,.74); --panel-line:rgba(174,187,205,.16);
+  --disp:'Playfair Display',Didot,'Playfair Display',Georgia,serif;
+  --sans:'Archivo',-apple-system,'Helvetica Neue',Arial,sans-serif;
+  --num:'Big Shoulders Display',Impact,'Arial Narrow',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--sans);font-size:16px;line-height:1.55;color:var(--pearl);
+  background:var(--ink);overflow-x:hidden;
+}
+body.locked{overflow:hidden;}
+::selection{background:var(--gold);color:var(--ink);}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px;}
+a{color:var(--gold-bright);text-decoration:none;}
+
+/* фон */
+#bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(1100px 720px at 82% -10%, rgba(216,183,135,.09), transparent 62%),
+    radial-gradient(900px 700px at -15% 38%, rgba(20,42,92,.32), transparent 64%),
+    radial-gradient(1200px 900px at 55% 115%, rgba(10,22,48,.5), transparent 66%),
+    var(--ink);
+}
+#bg::after{content:"";position:absolute;inset:-60px;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain 46s linear infinite alternate;
+}
+#bg::before{content:"";position:absolute;inset:0;opacity:.5;
+  background:repeating-linear-gradient(180deg, transparent 0 119px, rgba(174,187,205,.045) 119px 120px);
+}
+@keyframes grain{from{transform:translate(0,0)}to{transform:translate(-46px,-30px)}}
+
+/* фоновые фото стадий */
+#stagebg{position:fixed;inset:0;z-index:0;pointer-events:none;}
+#stagebg figure{position:absolute;inset:0;opacity:0;transition:opacity 1.3s ease;}
+#stagebg figure.act{opacity:1;}
+#stagebg img{width:100%;height:100%;object-fit:cover;
+  filter:grayscale(1) sepia(.32) hue-rotate(-12deg) saturate(1.25) contrast(1.06) brightness(.5);}
+#stagebg figure[data-sec="s0"] img{filter:grayscale(.85) sepia(.28) hue-rotate(-10deg) saturate(1.2) contrast(1.05) brightness(.62);}
+#stagebg figure::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(7,11,19,.78) 0%,rgba(7,11,19,.38) 42%,rgba(7,11,19,.9) 100%);}
+#stagebg figure[data-sec="s5"]::after{background:linear-gradient(180deg,rgba(7,11,19,.78) 0%,rgba(20,10,14,.5) 42%,rgba(7,11,19,.9) 100%),linear-gradient(120deg,rgba(224,86,92,.14),transparent 55%);}
+#stagebg figure.act img{animation:kenburns 38s ease-in-out infinite alternate;}
+@keyframes kenburns{from{transform:scale(1.02)}to{transform:scale(1.13)}}
+#stagebg::before{content:"";position:absolute;inset:-60px;opacity:.07;z-index:2;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain 46s linear infinite alternate;}
+
+/* верхний прогресс */
+#bar{position:fixed;top:0;left:0;right:0;height:2px;z-index:30;background:transparent;}
+#bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--gold),var(--gold-bright));
+  transform-origin:0 50%;transform:scaleX(0);}
+
+/* заставка */
+#veil{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+  background:radial-gradient(ellipse at 50% 42%,#0d1524 0%,var(--ink) 70%);
+  transition:opacity 1.4s ease;text-align:center;padding:24px;}
+#veil.off{opacity:0;pointer-events:none;}
+#veil .mark{font-size:15px;color:var(--gold);letter-spacing:.5em;text-indent:.5em;}
+#veil .t{font-family:var(--disp);font-weight:600;font-size:clamp(44px,8vw,76px);letter-spacing:.06em;color:var(--pearl);}
+#veil .st{font-family:var(--disp);font-style:italic;font-weight:500;font-size:clamp(17px,2.6vw,24px);letter-spacing:.14em;color:var(--gold);}
+#veil .bar{width:210px;height:1px;background:rgba(243,246,250,.14);margin-top:16px;position:relative;overflow:hidden;}
+#veil .bar i{position:absolute;inset:0;background:var(--gold);transform-origin:0 50%;transform:scaleX(0);}
+#veil .s{font-size:9.5px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--faint);}
+#veil .go{opacity:0;transform:translateY(10px);transition:.7s cubic-bezier(.16,.7,.2,1);
+  display:inline-flex;align-items:center;gap:12px;margin-top:14px;
+  font:600 11px/1 var(--sans);letter-spacing:.24em;text-indent:.24em;text-transform:uppercase;color:#2a2010;
+  background:#d9bd85;border-radius:999px;padding:16px 32px;cursor:pointer;border:none;
+  box-shadow:inset 0 1px #fff8e68c,inset 0 0 0 1px #b2945c66,0 10px 34px rgba(0,0,0,.45);}
+#veil .go:hover{background:#e6cc99;}
+#veil.ready .go{opacity:1;transform:none;}
+
+/* боковая навигация */
+#rail{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:20;display:flex;flex-direction:column;gap:14px;}
+#rail button{width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;position:relative;
+  background:transparent;padding:0;transition:.3s;display:flex;align-items:center;justify-content:center;}
+#rail button::after{content:"";width:9px;height:9px;border-radius:50%;background:rgba(243,246,250,.55);transition:.3s;}
+#rail button.act::after{background:var(--gold-bright);transform:scale(1.3);}
+#rail button span{position:absolute;right:20px;top:50%;transform:translateY(-50%);white-space:nowrap;
+  font:600 10px var(--sans);letter-spacing:.22em;text-transform:uppercase;color:var(--silver);
+  opacity:0;transition:.25s;pointer-events:none;background:var(--panel);border:1px solid var(--panel-line);
+  padding:6px 10px;border-radius:999px;backdrop-filter:blur(8px);}
+#rail button:hover span{opacity:1;}
+@media(max-width:900px){#rail{display:none;}}
+@media(max-width:600px){
+  .card{padding:28px 22px 24px;}
+  .cbar{flex-direction:column;height:auto;border-radius:10px;}
+  .cbar span{width:100%!important;padding:8px 14px;justify-content:center;}
+}
+
+/* телеметрия */
+#hud{position:fixed;right:18px;bottom:18px;z-index:20;display:flex;border-radius:14px;overflow:hidden;
+  background:linear-gradient(160deg,#0d132094,#070b1380);border:1px solid rgba(243,246,250,.1);
+  backdrop-filter:blur(11px) saturate(140%);box-shadow:0 12px 44px #02050a59,inset 0 1px #f3f6fa0f;}
+#hud .cell{width:104px;padding:12px 0 13px 16px;border-right:1px solid rgba(243,246,250,.08);}
+#hud .cell:last-child{border-right:none;}
+#hud .k{font-weight:600;font-size:9px;letter-spacing:.12em;color:rgba(174,187,205,.72);text-transform:uppercase;}
+#hud .v{font-family:var(--num);font-weight:800;font-size:23px;line-height:1.05;color:var(--cyan);font-variant-numeric:tabular-nums;margin-top:2px;}
+#hud .cell.alt .v{color:var(--pearl);}
+#hud .cell.day .v{color:var(--gold);}
+@media(max-width:1280px){#hud .cell{width:84px;padding:10px 0 11px 12px;}#hud .v{font-size:19px;}}
+@media(max-width:720px){#hud{right:12px;left:12px;justify-content:center;}#hud .cell{width:auto;padding-right:12px;}}
+
+main{position:relative;z-index:1;}
+</style>
+<style>
+/* стадии */
+.stage{min-height:260vh;position:relative;}
+#s0{min-height:150vh;display:flex;align-items:center;}
+.card{position:sticky;top:13vh;max-width:30rem;margin-left:clamp(16px,5vw,84px);
+  padding:50px 48px 38px;border-radius:20px;
+  background:linear-gradient(160deg,#0f1624c7,#070b13b5);
+  backdrop-filter:blur(13px) saturate(150%);-webkit-backdrop-filter:blur(13px) saturate(150%);
+  box-shadow:0 24px 80px #02050a80,inset 0 1px #f3f6fa1a;border:1px solid var(--panel-line);}
+
+.stage{--acc:var(--gold-bright);}
+.stage.danger{--acc:var(--danger);}
+.eyebrow{font-weight:600;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--silver);margin-bottom:18px;}
+.eyebrow b{color:var(--acc);font-weight:600;}
+.card h2{font-family:var(--disp);font-weight:600;font-size:clamp(32px,3.9vw,45px);line-height:1.04;color:var(--pearl);}
+.card h2 em{font-style:italic;font-weight:500;color:var(--acc);}
+.card p{font-weight:300;font-size:13.5px;line-height:1.9;letter-spacing:.011em;color:var(--silver);max-width:62ch;margin-top:14px;}
+.card p strong{font-weight:500;color:var(--pearl);}
+
+.chips{list-style:none;margin-top:26px;padding-top:20px;border-top:1px solid rgba(243,246,250,.1);
+  display:flex;flex-wrap:wrap;line-height:2.2;}
+.chips li{font-weight:600;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#aebbcddd;}
+.chips li b{color:var(--pearl);font-weight:600;}
+.chips li+li::before{content:"·";color:var(--gold);margin:0 10px;}
+
+details.fd{border-top:1px solid rgba(243,246,250,.1);margin-top:6px;}
+details.fd summary{display:flex;align-items:center;gap:9px;padding:20px 2px 17px;cursor:pointer;list-style:none;
+  font-weight:600;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--silver);}
+details.fd summary::-webkit-details-marker{display:none;}
+details.fd summary i{font-style:normal;color:var(--gold);transition:transform .4s cubic-bezier(.34,1.56,.64,1);display:inline-block;}
+details.fd[open] summary i{transform:rotate(45deg);}
+details.fd table{width:100%;border-collapse:collapse;margin-bottom:8px;}
+details.fd tr+tr td,details.fd tr+tr th{border-top:1px solid rgba(174,187,205,.1);}
+details.fd th{font-weight:600;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
+  text-align:left;width:34%;padding:12px 12px 12px 0;vertical-align:top;}
+details.fd td{font-weight:300;font-size:13px;line-height:1.6;color:var(--silver);padding:12px 0;}
+details.fd td b{color:var(--gold-bright);font-weight:500;}
+
+/* hero */
+#s0 .card,#s0{background:none;border:none;box-shadow:none;backdrop-filter:none;}
+#s0 .card{position:relative;top:auto;margin-left:clamp(20px,7vw,120px);max-width:56rem;padding:0 24px;text-align:center;}
+#s0 .eyebrow{letter-spacing:.42em;}
+#s0 h1{font-family:var(--disp);font-weight:500;font-size:clamp(58px,11vw,158px);line-height:.98;letter-spacing:.055em;text-transform:uppercase;color:var(--pearl);}
+#s0 .sub{font-family:var(--disp);font-style:italic;font-weight:500;font-size:clamp(19px,3.2vw,36px);letter-spacing:.2em;color:var(--gold);margin-top:10px;}
+#s0 .lead{font-weight:300;font-size:15px;line-height:1.9;color:var(--silver);max-width:62ch;margin:26px auto 0;}
+#s0 .cred{margin-top:30px;font-size:9.5px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--faint);}
+#s0 .cred b{color:var(--silver);font-weight:600;}
+
+/* эпилог */
+#epi{min-height:auto;padding:16vh clamp(18px,6vw,90px) 12vh;max-width:1180px;margin:0 auto;}
+#epi h2{font-family:var(--disp);font-weight:600;font-size:clamp(40px,6vw,76px);line-height:1;color:var(--pearl);}
+#epi h2 em{font-style:italic;font-weight:500;color:var(--gold-bright);}
+#epi .lede{font-weight:300;font-size:15px;line-height:1.85;color:var(--silver);max-width:68ch;margin-top:18px;}
+.srcline{font-size:11px;color:var(--faint);margin-top:16px;}
+
+#stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:14px;margin-top:44px;}
+.tile{border-radius:14px;padding:24px;background:linear-gradient(160deg,#f3f6fa12,#aebbcd04),#060a129e;
+  box-shadow:inset 0 0 0 1px #f3f6fa21,inset 0 1px #f3f6fa38;}
+.tile .k{font-weight:600;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint);}
+.tile .n{font-weight:300;font-size:clamp(25px,2.6vw,33px);line-height:1.05;color:var(--pearl);margin-top:8px;font-variant-numeric:tabular-nums;}
+.tile .n em{font-style:normal;font-size:15px;color:var(--gold);}
+.tile .d{font-weight:300;font-size:12.5px;line-height:1.6;color:var(--silver);margin-top:8px;}
+
+.callout{border-radius:14px;padding:28px;margin-top:44px;background:linear-gradient(160deg,#f3f6fa12,#aebbcd04),#060a129e;
+  box-shadow:inset 0 0 0 1px #f3f6fa21,inset 0 1px #f3f6fa38;}
+.callout .cl{display:flex;align-items:center;gap:22px;flex-wrap:wrap;}
+.callout .cn{font-family:var(--num);font-weight:800;font-size:clamp(36px,10vw,64px);line-height:1;color:var(--gold-bright);}
+.callout .ct{font-weight:300;font-size:13.5px;line-height:1.75;color:var(--silver);max-width:60ch;}
+.callout .ct b{color:var(--pearl);font-weight:500;}
+.cbar{display:flex;height:30px;border-radius:999px;overflow:hidden;margin-top:22px;font:600 9px var(--sans);
+  letter-spacing:.14em;text-transform:uppercase;}
+.cbar span{display:flex;align-items:center;padding-left:14px;color:#2a2010;}
+.cbar .h1x{background:#d9bd85;}
+.cbar .h2x{background:#b99a67;}
+.cbar .h3x{background:#96794c;color:#f3ecd9;}
+
+.tl{margin-top:40px;border-left:1px solid var(--gold-line);padding-left:26px;display:flex;flex-direction:column;gap:20px;}
+.ev{position:relative;}
+.ev::before{content:"";position:absolute;left:-31px;top:7px;width:9px;height:9px;border-radius:50%;
+  background:var(--gold);box-shadow:0 0 0 4px rgba(216,183,135,.16);}
+.ev.dark::before{background:var(--danger);box-shadow:0 0 0 4px rgba(224,86,92,.16);}
+.ev b{font-family:var(--num);font-weight:800;font-size:21px;letter-spacing:.04em;color:var(--gold-bright);display:block;}
+.ev span{display:block;font-weight:300;font-size:13.5px;color:var(--silver);margin-top:3px;max-width:66ch;}
+.ev.dark b{color:var(--danger);}
+
+footer{position:relative;z-index:1;text-align:center;padding:44px 24px 52px;font-weight:300;font-size:11.5px;
+  letter-spacing:.06em;color:var(--faint);border-top:1px solid rgba(174,187,205,.08);}
+footer b{color:var(--silver);font-weight:600;}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(16px);transition:opacity .8s ease,transform .8s cubic-bezier(.16,.7,.2,1);}
+.on .rv{opacity:1;transform:none;}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto;}
+  *{transition:none!important;animation:none!important;}
+  .rv{opacity:1;transform:none;}
+  #stagebg figure.act img{animation:none;}
+}
+</style>
+</head>
+<body class="locked">
+
+<div id="bg" aria-hidden="true"></div>
+<div id="stagebg" aria-hidden="true"></div>
+<div id="bar" aria-hidden="true"><i></i></div>
+
+<div id="veil">
+  <p class="mark">✦</p>
+  <p class="t">ОТР</p>
+  <p class="st">основы технологии работы</p>
+  <div class="bar"><i id="vload"></i></div>
+  <p class="s" id="vstat">ПОДГОТОВКА · 55.75° N · 37.61° E</p>
+  <button class="go" id="vgo">НАЧАТЬ ПРОГРАММУ →</button>
+</div>
+
+<nav id="rail" aria-label="Разделы"></nav>
+
+<div id="hud" aria-hidden="true">
+  <div class="cell alt"><div class="k">РАЗДЕЛ</div><div class="v" id="hSec">I</div></div>
+  <div class="cell"><div class="k">БЛОК</div><div class="v" id="hBlk">1/5</div></div>
+  <div class="cell"><div class="k">ПРОГРЕСС</div><div class="v" id="hPct">0<small>%</small></div></div>
+  <div class="cell day"><div class="k">СЕССИЯ</div><div class="v">4 Ч</div></div>
+</div>
+
+<main>
+<section class="stage" id="s0">
+  <div class="card" id="heroCard">
+    <p class="eyebrow rv">АДАПТАЦИОННАЯ ПРОГРАММА ДЛЯ МОЛОДЁЖИ · <b>ОАО «РЖД»</b></p>
+    <h1 class="rv">Основы технологии работы</h1>
+    <p class="sub rv">от колёсной пары — к системе движения</p>
+    <p class="lead rv">Пять блоков погружения: масштаб холдинга, инфраструктурный комплекс, подвижной состав,
+    организация перевозок и взгляд за горизонт. Путь от первого рельса до цифровой двойника отрасли.</p>
+    <p class="cred rv">4 АСТРОНОМИЧЕСКИХ ЧАСА · 5 БЛОКОВ · ВИКТОРИНА · <b>ЛИСТАЙТЕ ВНИЗ</b></p>
+  </div>
+</section>
+
+<section class="stage" id="s1">
+  <div class="card">
+    <p class="eyebrow rv">БЛОК I · МАСШТАБ ХОЛДИНГА · <b>85,5 ТЫС КМ</b></p>
+    <h2 class="rv">Масштаб, который <em>чувствуешь</em></h2>
+    <p>Эксплуатационная длина сети ОАО «РЖД» — <strong>85,5 тыс. км</strong>. Второе место в мире по грузообороту,
+    первое — по грузонапряжённости и безопасности движения. На инфраструктуре холдинга — <strong>44,8%
+    грузооборота</strong> и 27,1% пассажирооборота страны.</p>
+    <p>Среди видов транспорта — автомобильный, авиационный, водный, трубопроводный — железная дорога
+    берёт <strong>массой и всепогодностью</strong>: 1 115,8 млн тонн погрузки за 2025 год и поезда массой
+    до 7,1 тыс. тонн.</p>
+    <ul class="chips rv"><li><b>85,5 тыс. км</b> сеть</li><li><b>2-е место</b> в мире по грузообороту</li><li><b>44,8%</b> грузооборота России</li></ul>
+    <details class="fd rv"><summary><i>✦</i> Данные блока</summary><table>
+      <tr><th>Сеть</th><td><b>85,5 тыс. км</b> эксплуатационная длина · 44,3 тыс. км электрифицировано</td></tr>
+      <tr><th>Место в мире</th><td><b>2-е</b> по грузообороту · <b>1-е</b> по грузонапряжённости, безопасности и энергоэффективности</td></tr>
+      <tr><th>Экономика</th><td><b>44,8%</b> грузооборота и <b>27,1%</b> пассажирооборота России</td></tr>
+      <tr><th>Погрузка-2025</th><td><b>1 115,8 млн тонн</b> · грузооборот 3 075,3 млрд ткм</td></tr>
+    </table></details>
+  </div>
+</section>
+
+<section class="stage" id="s2">
+  <div class="card">
+    <p class="eyebrow rv">БЛОК II · ИНФРАСТРУКТУРНЫЙ КОМПЛЕКС · <b>РЕЛЬСЫ Р50–Р75</b></p>
+    <h2 class="rv">Путь, с которого <em>всё</em> начинается</h2>
+    <p>Рельсы <strong>Р50, Р65 и Р75</strong> — чем тяжелее рельс, тем больший пропущенный тоннаж он выдерживает.
+    Бесстыковой путь убирает слабое место — стыки, а система <strong>габаритов</strong> гарантирует зазор
+    между подвижным составом и сооружениями.</p>
+    <p>Дальше — искусственные сооружения: мосты и тоннели. Путевые машины <strong>УК-25, ЩОМ, ВПР, ПРСМ</strong>
+    строят и лечат путь. Электроснабжение — 3 кВ постоянного и 25 кВ переменного тока. Автоблокировка
+    на перегоне и ЭЦ на станции — <strong>ЖАТ</strong>, язык движения.</p>
+    <ul class="chips rv"><li><b>4 249 км</b> пути оздоровлено в 2025</li><li>Окна <b>75–110 мин</b></li><li><b>3 кВ / 25 кВ</b> тяга</li></ul>
+    <details class="fd rv"><summary><i>✦</i> Данные блока</summary><table>
+      <tr><th>Верхнее строение</th><td>Рельсы, шпалы, балласт · <b>бесстыковой путь</b> — сварные плети без стыков</td></tr>
+      <tr><th>ИССО</th><td>Мосты, тоннели, виадуки, путепроводы · <b>габариты</b> приближения строений и подвижного состава</td></tr>
+      <tr><th>Путевые машины</th><td><b>УК-25</b> укладка решётки · <b>ЩОМ</b> очистка балласта · <b>ВПР</b> выправка · <b>ПРСМ</b> сварка плетей</td></tr>
+      <tr><th>ЖАТ</th><td>Автоблокировка — интервал на перегоне · <b>ЭЦ</b> — стрелки и сигналы на станции</td></tr>
+    </table></details>
+  </div>
+</section>
+
+<section class="stage" id="s3">
+  <div class="card">
+    <p class="eyebrow rv">БЛОК III · ПОДВИЖНОЙ СОСТАВ · <b>12 058 ЛОКОМОТИВОВ</b></p>
+    <h2 class="rv">Сила в <em>серии</em></h2>
+    <p>В парке ОАО «РЖД» — <strong>12 058 локомотивов</strong>: грузовые, пассажирские, маневровые. Серия читается
+    как паспорт: <strong>2ТЭ10</strong> — двухсекционный грузовой тепловоз, <strong>ЭП1</strong> — пассажирский
+    электровоз переменного тока, <strong>3ЭС8 «Малахит»</strong> — грузовой электровоз с асинхронным приводом.</p>
+    <p>Вагоны подбираются под груз: полувагон — уголь, цистерна — налив, <strong>фитинговая платформа</strong> —
+    контейнеры. Ремонты — по пробегу: ТР-1, ТР-2, ТР-3, средний и капитальный. В 2025 году закуплено
+    <strong>399 новых локомотивов</strong> — все российского производства.</p>
+    <ul class="chips rv"><li><b>12 058</b> локомотивов</li><li><b>159,3 тыс.</b> грузовых вагонов</li><li><b>399</b> новых локомотивов за 2025</li></ul>
+    <details class="fd rv"><summary><i>✦</i> Данные блока</summary><table>
+      <tr><th>Серии</th><td><b>2ТЭ10</b>, ТЭП70, ВЛ80, ЭП1 · <b>2ЭС5К «Ермак»</b> · <b>3ЭС8 «Малахит»</b> · ТЭМ18 маневровый</td></tr>
+      <tr><th>Вагоны</th><td>Полувагон · цистерна · платформа · <b>фитинговая платформа</b> под контейнеры · хоппер</td></tr>
+      <tr><th>Тяжеловесы</th><td>Поезда массой до <b>7,1 тыс. тонн</b> · 37,9 тыс. таких поездов за 2025 год</td></tr>
+      <tr><th>Ремонты</th><td><b>ТР-1</b> 25–50 тыс. км · ТР-2 · ТР-3 · СР · <b>КР</b> — по пробегу, в депо и на заводах</td></tr>
+    </table></details>
+  </div>
+</section>
+
+<section class="stage" id="s4">
+  <div class="card">
+    <p class="eyebrow rv">БЛОК IV · ОРГАНИЗАЦИЯ ПЕРЕВОЗОК · <b>ДС–Д–П–ЦД</b></p>
+    <h2 class="rv">Дирижёры <em>движения</em></h2>
+    <p>Четыре уровня управления: <strong>ДС</strong> на станции, <strong>Д</strong> на дороге, <strong>П</strong> на
+    полигоне, <strong>ЦД</strong> — вся сеть. График движения поездов — партитура, по которой живёт
+    инфраструктура, тяга и станции.</p>
+    <p>Сортировочные горки расформировывают составы по назначениям, план формирования решает, какие вагоны
+    едут вместе. Результат измеряют цифрами: скорость доставки <strong>494,5 км/сут</strong>, <strong>97,9%</strong>
+    отправок точно в срок, участковая скорость 38,7 км/ч.</p>
+    <ul class="chips rv"><li><b>4 уровня</b> управления</li><li><b>494,5 км/сут</b> скорость доставки</li><li><b>97,9%</b> точно в срок</li></ul>
+    <details class="fd rv"><summary><i>✦</i> Данные блока</summary><table>
+      <tr><th>Уровни</th><td><b>ДС</b> станция · <b>Д</b> дорога · <b>П</b> полигон · <b>ЦД</b> сеть</td></tr>
+      <tr><th>ГДП</th><td>График движения поездов — <b>нитки</b> каждого поезда · текущее планирование 3-часовыми периодами</td></tr>
+      <tr><th>Формирование</th><td><b>Сортировочные горки</b> · план формирования · экономия проследования против затрат на накопление</td></tr>
+      <tr><th>Технологии</th><td><b>Виртуальная сцепка</b> — 88,8 тыс. поездок за 2025 · до 15 дополнительных пар поездов на участке</td></tr>
+    </table></details>
+  </div>
+</section>
+
+<section class="stage danger" id="s5">
+  <div class="card">
+    <p class="eyebrow rv">БЛОК V · ВЗГЛЯД ЗА ГОРИЗОНТ · <b>2030–2050</b></p>
+    <h2 class="rv">Горизонт, который <em>уже</em> виден</h2>
+    <p>Три горизонта развития: до <strong>2030</strong> — автоматизация перевозочного процесса; до <strong>2040</strong> —
+    единое цифровое транспортное пространство; к <strong>2050</strong> — цифровой двойник отрасли.</p>
+    <p>Будущее уже на сети: беспилотные электропоезда уровня <strong>УА4</strong> на МЦК, «Ласточки» с компьютерным
+    зрением, квантовая сеть <strong>7 858 км</strong> между городами-миллионниками, ВСМ Москва — Петербург.
+    Будущее не появляется одномоментно — оно проявляется слабыми сигналами.</p>
+    <ul class="chips rv"><li><b>УА4</b> беспилотное ведение</li><li><b>7 858 км</b> квантовой сети</li><li><b>3 горизонта</b> до 2050</li></ul>
+    <details class="fd rv"><summary><i>✦</i> Данные блока</summary><table>
+      <tr><th>Горизонт I</th><td>До <b>2030</b> — автоматизация перевозочного процесса, электронный документооборот</td></tr>
+      <tr><th>Горизонт II</th><td>До <b>2040</b> — единое цифровое пространство, цифровые двойники инфраструктуры</td></tr>
+      <tr><th>Горизонт III</th><td>К <b>2050</b> — цифровой двойник перевозочного процесса, новые виды транспорта</td></tr>
+      <tr><th>Уже сегодня</th><td><b>УА4</b> на МЦК · компьютерное зрение «Ласточек» · <b>7 858 км</b> квантовых коммуникаций · ВСМ Мск—СПб</td></tr>
+    </table></details>
+  </div>
+</section>
+
+<section id="epi">
+  <p class="eyebrow rv">ФИНАЛ ПРОГРАММЫ · <b>СВОЯ ИГРА</b></p>
+  <h2 class="rv">Своя <em>игра</em></h2>
+  <p class="lede rv">Проверим, как усвоены технологии: командная викторина по всем блокам — от рельса
+  до цифрового двойника. Табло, бланки, три раунда — и победители.</p>
+
+  <div class="tl rv">
+    <div class="ev"><b>БЛОК 0</b><span>Открытие: легенда программы, регламент, команды.</span></div>
+    <div class="ev"><b>БЛОКИ I–IV</b><span>Масштаб холдинга · инфраструктурный комплекс · подвижной состав · организация перевозок.</span></div>
+    <div class="ev"><b>БЛОК V</b><span>Взгляд за горизонт: три горизонта до 2050 года.</span></div>
+    <div class="ev dark"><b>45 МИНУТ</b><span>Своя игра: три раунда, четыре категории, вопросы на 10–30 баллов.</span></div>
+  </div>
+
+  <div class="callout rv">
+    <div class="cl">
+      <div class="cn">45'</div>
+      <div class="ct"><b>Своя игра.</b> Командная викторина закрепляет материал: каждый вопрос — короткое
+      пояснение от ведущего. Победителей ждут призы, всех — понимание, как устроена дорога.</div>
+    </div>
+    <div class="cbar"><span class="h1x" style="width:33.3%">РАУНД 1 · ИНФРАСТРУКТУРА</span><span class="h2x" style="width:33.3%">РАУНД 2 · УПРАВЛЕНИЕ</span><span class="h3x" style="width:33.4%">РАУНД 3 · ТЯГА И РАЗНОЕ</span></div>
+  </div>
+
+  <p class="eyebrow rv" style="margin-top:52px;">ПРОГРАММА В ЦИФРАХ · <b>СПРАВКА</b></p>
+  <div id="stats">
+    <div class="tile rv"><div class="k">Сеть</div><div class="n">85,5 <em>тыс км</em></div><div class="d">эксплуатационная длина ОАО «РЖД»</div></div>
+    <div class="tile rv"><div class="k">Локомотивы</div><div class="n">12 058</div><div class="d">в парке ОАО «РЖД»</div></div>
+    <div class="tile rv"><div class="k">Грузовые вагоны</div><div class="n">159,3 <em>тыс</em></div><div class="d">плюс 1,41 млн в парке операторов</div></div>
+    <div class="tile rv"><div class="k">Скорость доставки</div><div class="n">494,5 <em>км/сут</em></div><div class="d">прирост +21,9% за год</div></div>
+    <div class="tile rv"><div class="k">Точно в срок</div><div class="n">97,9<em>%</em></div><div class="d">грузовых отправок в 2025 году</div></div>
+    <div class="tile rv"><div class="k">Тяжеловесы</div><div class="n">7,1 <em>тыс т</em></div><div class="d">масса поезда на Восточном полигоне</div></div>
+    <div class="tile rv"><div class="k">Скоростные поезда</div><div class="n">403 <em>пары</em></div><div class="d">скорых, скоростных и ВСМ поездов</div></div>
+    <div class="tile rv"><div class="k">Квантовая сеть</div><div class="n">7 858 <em>км</em></div><div class="d">13 городов-миллионников</div></div>
+  </div>
+
+  <p class="srcline rv">По материалам годовых отчётов ОАО «РЖД» за 2023–2025 гг. и форсайта «РЖД 2050: взгляд за горизонт» (Иннопрактика, 2021).</p>
+</section>
+</main>
+
+<footer>
+  <b>ОТР для молодёжи</b> · Основы технологии работы · Корпоративный университет РЖД<br>
+  Фотоматериалы: архив Программы целевого обучения · Стилизация: дуотон «чернила — золото»
+</footer>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var SECTIONS = [
+    {id:'s0',  label:'НАЧАЛО',                 sec:'—',  blk:''},
+    {id:'s1',  label:'МАСШТАБ ХОЛДИНГА',       sec:'I',  blk:'1/5'},
+    {id:'s2',  label:'ИНФРАСТРУКТУРА',         sec:'II', blk:'2/5'},
+    {id:'s3',  label:'ПОДВИЖНОЙ СОСТАВ',       sec:'III',blk:'3/5'},
+    {id:'s4',  label:'УПРАВЛЕНИЕ ПЕРЕВОЗКАМИ', sec:'IV', blk:'4/5'},
+    {id:'s5',  label:'ВЗГЛЯД ЗА ГОРИЗОНТ',     sec:'V',  blk:'5/5'},
+    {id:'epi', label:'ФИНАЛ · СВОЯ ИГРА',      sec:'✦',  blk:'✦'}
+  ];
+
+  var rail = $('rail');
+  var BG = {
+    s0:'assets/hero-night.jpg',  s1:'assets/s1-scale.jpg',  s2:'assets/s2-bridge.jpg',
+    s3:'assets/s3-rolling.jpg',  s4:'assets/s4-cab.jpg',    s5:'assets/s5-energy.jpg',
+    epi:'assets/epi-road.jpg'
+  };
+  var sbg = $('stagebg'), sbgFigs = {};
+  SECTIONS.forEach(function(s){
+    var f = document.createElement('figure');
+    f.dataset.sec = s.id;
+    var img = document.createElement('img');
+    img.src = BG[s.id]; img.alt = ''; img.decoding = 'async';
+    if(s.id !== 's0') img.loading = 'lazy';
+    f.appendChild(img);
+    sbg.appendChild(f);
+    sbgFigs[s.id] = f;
+  });
+  sbgFigs.s0.classList.add('act');
+
+  SECTIONS.forEach(function(s){
+    var b = document.createElement('button');
+    b.setAttribute('aria-label', s.label);
+    var sp = document.createElement('span');
+    sp.textContent = s.label;
+    b.appendChild(sp);
+    b.addEventListener('click', function(){
+      document.getElementById(s.id).scrollIntoView({behavior: reduced ? 'auto' : 'smooth'});
+    });
+    b.dataset.target = s.id;
+    rail.appendChild(b);
+  });
+
+  function startVeil(){
+    var veil = $('veil'), load = $('vload');
+    if(reduced){
+      veil.classList.add('ready'); begin(); return;
+    }
+    var p = 0;
+    var iv = setInterval(function(){
+      p += 4 + Math.random()*9;
+      if(p >= 100){ p = 100; clearInterval(iv);
+        $('vstat').textContent = 'ГОТОВО · 55.75° N · 37.61° E';
+        setTimeout(function(){ veil.classList.add('ready'); }, 250);
+      }
+      load.style.transform = 'scaleX(' + (p/100) + ')';
+    }, 70);
+  }
+  var io = null;
+  function armReveal(){
+    if(io) return;
+    io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(!en.isIntersecting) return;
+        var el = en.target;
+        var rvs = el.querySelectorAll('.rv:not([data-done])');
+        rvs.forEach(function(r, i){
+          r.dataset.done = '1';
+          r.style.transitionDelay = (0.09*i) + 's';
+          r.classList.add('on');
+        });
+        io.unobserve(el);
+      });
+    }, {threshold: 0.22});
+    document.querySelectorAll('.card, #epi > *').forEach(function(el){ io.observe(el); });
+  }
+  function begin(){
+    $('veil').classList.add('off');
+    document.body.classList.remove('locked');
+    armReveal();
+  }
+  $('vgo').addEventListener('click', begin);
+
+  var hudSec = $('hSec'), hudBlk = $('hBlk'), hudPct = $('hPct'),
+      barFill = document.querySelector('#bar i'),
+      dots = Array.prototype.slice.call(rail.children);
+
+  var ticking = false;
+  function onScroll(){
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(function(){
+      ticking = false;
+      var doc = document.documentElement;
+      var total = doc.scrollHeight - window.innerHeight;
+      var y = window.scrollY || doc.scrollTop;
+      var pct = total > 0 ? Math.min(100, Math.max(0, y / total * 100)) : 0;
+      barFill.style.transform = 'scaleX(' + (pct/100) + ')';
+      hudPct.textContent = Math.round(pct) + '%';
+
+      var current = SECTIONS[0], curId = SECTIONS[0].id;
+      for(var i=0;i<SECTIONS.length;i++){
+        var el = document.getElementById(SECTIONS[i].id);
+        if(el && el.getBoundingClientRect().top <= window.innerHeight*0.45){
+          current = SECTIONS[i]; curId = SECTIONS[i].id;
+        }
+      }
+      hudSec.textContent = current.sec;
+      hudBlk.textContent = current.blk;
+      dots.forEach(function(d){ d.classList.toggle('act', d.dataset.target === curId); });
+      for(var k in sbgFigs){ sbgFigs[k].classList.toggle('act', k === curId); }
+    });
+  }
+  addEventListener('scroll', onScroll, {passive:true});
+  addEventListener('resize', onScroll);
+
+  startVeil();
+  if(reduced){ begin(); }
+  onScroll();
+})();
+</script>
+</body>
+</html>
