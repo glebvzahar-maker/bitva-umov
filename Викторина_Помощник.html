@@ -67,7 +67,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .q-top-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(20,26,42,.95);border-bottom:1px solid rgba(212,168,67,.15);flex-shrink:0;}
 .q-top-bar .back-btn{background:none;border:none;color:var(--gold);font-size:20px;cursor:pointer;}
 .q-top-bar .q-badge{background:var(--gold);color:var(--bg);font-weight:700;padding:4px 12px;border-radius:16px;font-size:11px;}
-.q-body{flex:1;overflow-y:auto;padding:16px 16px 100px;display:flex;flex-direction:column;gap:14px;}
+.q-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;}
 .q-text{font-size:16px;font-weight:600;line-height:1.5;background:var(--card);border-radius:10px;padding:16px;border-left:3px solid var(--gold);}
 .q-options{display:flex;flex-direction:column;gap:8px;}
 .q-option{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:12px 14px;font-size:14px;line-height:1.4;transition:all .3s;}
@@ -79,7 +79,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .q-explanation p{margin-bottom:8px;}
 .q-explanation strong{color:var(--text);}
 
-.q-actions{display:flex;gap:12px;padding:12px 16px;flex-shrink:0;position:fixed;bottom:0;left:0;right:0;z-index:15;background:rgba(10,14,23,.95);border-top:1px solid rgba(212,168,67,.15);}
+.q-actions{display:flex;gap:12px;padding:12px 16px;flex-shrink:0;background:rgba(10,14,23,.95);border-top:1px solid rgba(212,168,67,.15);}
 .q-action-btn{flex:1;padding:20px 10px;border:none;border-radius:12px;font-size:18px;font-weight:700;cursor:pointer;transition:all .2s;}
 .q-action-btn:active{transform:scale(.96);}
 .q-action-btn.accept{background:var(--green);color:var(--bg);}
@@ -173,7 +173,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 <div class="screen" id="screen-rounds"><div class="rounds-grid" id="rounds-grid"></div></div>
 <div class="screen" id="screen-board"><div class="board-header"><button class="back-btn" onclick="goToRounds()">←</button><h2 id="board-title"></h2><div></div></div><div class="board-grid" id="board-grid"></div></div>
 <div class="screen" id="screen-team-select"><div class="board-header"><button class="back-btn" onclick="goToBoard()">←</button><h2>Какая команда отвечает?</h2><div></div></div><div class="team-select-grid" id="team-select-grid"></div></div>
-<div class="question-screen" id="screen-question"><div class="q-top-bar"><button class="back-btn" onclick="goToTeamSelect()">←</button><div class="q-badge" id="q-badge"></div><div></div></div><div class="q-body" id="q-body"></div></div>
+<div class="question-screen" id="screen-question"><div class="q-top-bar"><button class="back-btn" onclick="goToTeamSelect()">←</button><div class="q-badge" id="q-badge"></div><div></div></div><div class="q-body" id="q-body"></div><div class="q-actions" id="q-actions"></div></div>
 <div class="scoreboard" id="scoreboard"><div class="score-header"><h2>Результат Викторины</h2><button class="close-btn" onclick="toggleScore()">×</button></div><div class="score-teams" id="score-teams"></div></div>
 <div class="review-overlay" id="review-overlay"><div class="review-header"><h2>Просмотр вопроса</h2><button class="close-btn" onclick="closeReview()">×</button></div><div class="review-body" id="review-body"></div></div>
 
@@ -296,11 +296,10 @@ function startQuestion(teamIdx){
     '<div class="q-text">'+q.question+'</div>'+
     '<div class="q-options">'+optsHtml+'</div>'+
     '<div class="q-answer-label">Правильный ответ: '+q.answer+'</div>'+
-    '<div class="q-explanation">'+explHtml+'</div>'+
-    '<div class="q-actions">'+
+    '<div class="q-explanation">'+explHtml+'</div>';
+  document.getElementById('q-actions').innerHTML=
     '<button class="q-action-btn accept" onclick="answerQuestion(true)">✓ Засчитать ('+TEAM_NAMES[currentTeam]+', +'+cost+')</button>'+
-    '<button class="q-action-btn reject" onclick="answerQuestion(false)">✗ Не засчитать</button>'+
-    '</div>';
+    '<button class="q-action-btn reject" onclick="answerQuestion(false)">✗ Не засчитать</button>';
   showScreen('screen-question');
 }
 
