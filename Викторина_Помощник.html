@@ -308,9 +308,11 @@ function renderArchiveList(){
   const archives=getArchives();
   const c=document.getElementById('archive-list');
   if(!archives.length){ c.innerHTML='<div class="archive-empty">Архив пуст</div>'; return; }
-  c.innerHTML=archives.map((a,i)=>{
+  const reversed=archives.slice().reverse();
+  c.innerHTML=reversed.map((a)=>{
+    const origIdx=archives.indexOf(a);
     const teamStr=a.teamNames.map((n,j)=>n+': '+a.scores[j]).join(' | ');
-    return '<div class="archive-item"><div class="archive-item-top"><div class="archive-item-date">'+a.date+'</div></div><div class="archive-item-teams">'+teamStr+'</div><div class="archive-item-actions"><button class="archive-resume" onclick="resumeArchive('+i+')">Продолжить</button><button class="archive-view" onclick="viewArchive('+i+')">Просмотр</button><button class="archive-delete" onclick="deleteArchive('+i+')">Удалить</button></div></div>';
+    return '<div class="archive-item"><div class="archive-item-top"><div class="archive-item-date">'+a.date+'</div></div><div class="archive-item-teams">'+teamStr+'</div><div class="archive-item-actions"><button class="archive-resume" onclick="resumeArchive('+origIdx+')">Продолжить</button><button class="archive-view" onclick="viewArchive('+origIdx+')">Просмотр</button><button class="archive-delete" onclick="deleteArchive('+origIdx+')">Удалить</button></div></div>';
   }).join('');
 }
 function resumeArchive(i){
