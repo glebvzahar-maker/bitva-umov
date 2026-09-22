@@ -357,11 +357,14 @@ function viewArchive(i){
   document.getElementById('review-overlay').classList.add('open');
 }
 function deleteArchive(i){
+  const pwd=prompt('Введите пароль для удаления:');
+  if(pwd!=='3321'){ if(pwd!==null) showToast('Неверный пароль'); return; }
   if(!confirm('Удалить запись?')) return;
   const archives=getArchives();
   archives.splice(i,1);
   saveArchives(archives);
   renderArchiveList();
+  showToast('Запись удалена');
 }
 
 function init(){
