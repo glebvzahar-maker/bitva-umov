@@ -50,6 +50,11 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .board-header h2{font-family:'Playfair Display',serif;font-size:17px;color:var(--gold);text-align:center;}
 
 .board-grid{display:grid;grid-template-columns:1.8fr repeat(5,1fr);gap:5px;padding:8px 12px;flex:1;align-content:stretch;}
+.team-row-label{background:var(--gold);color:var(--bg);border-radius:6px;padding:8px 6px;text-align:center;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;text-transform:uppercase;letter-spacing:.5px;}
+.team-cell{background:linear-gradient(135deg,#1a2240,#162038);border:2px solid rgba(212,168,67,.3);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:var(--muted);cursor:pointer;transition:all .25s;min-height:44px;user-select:none;}
+.team-cell:active{transform:scale(.93);}
+.team-cell.active{border-color:var(--gold);color:var(--gold);background:rgba(212,168,67,.12);box-shadow:0 0 12px rgba(212,168,67,.25);}
+.q-cell.no-team{opacity:.45;cursor:not-allowed;}
 .cat-label{background:var(--card);border:1px solid rgba(212,168,67,.2);border-radius:6px;padding:10px 8px;text-align:center;font-size:15px;font-weight:700;color:var(--gold);display:flex;align-items:center;justify-content:center;line-height:1.3;}
 .q-cell{background:linear-gradient(135deg,#1a2240,#162038);border:1px solid rgba(212,168,67,.18);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--gold2);cursor:pointer;transition:all .25s;min-height:54px;position:relative;}
 .q-cell:active{transform:scale(.93);}
@@ -173,7 +178,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 <div class="screen" id="screen-rounds"><div class="rounds-grid" id="rounds-grid"></div></div>
 <div class="screen" id="screen-board"><div class="board-header"><button class="back-btn" onclick="goToRounds()">←</button><h2 id="board-title"></h2><div></div></div><div class="board-grid" id="board-grid"></div></div>
 <div class="screen" id="screen-team-select"><div class="board-header"><button class="back-btn" onclick="goToBoard()">←</button><h2>Какая команда отвечает?</h2><div></div></div><div class="team-select-grid" id="team-select-grid"></div></div>
-<div class="question-screen" id="screen-question"><div class="q-top-bar"><button class="back-btn" onclick="goToTeamSelect()">←</button><div class="q-badge" id="q-badge"></div><div></div></div><div class="q-body" id="q-body"></div><div class="q-actions" id="q-actions"></div></div>
+<div class="question-screen" id="screen-question"><div class="q-top-bar"><button class="back-btn" onclick="goToBoard()">←</button><div class="q-badge" id="q-badge"></div><div></div></div><div class="q-body" id="q-body"></div><div class="q-actions" id="q-actions"></div></div>
 <div class="scoreboard" id="scoreboard"><div class="score-header"><h2>Результат Викторины</h2><button class="close-btn" onclick="toggleScore()">×</button></div><div class="score-teams" id="score-teams"></div></div>
 <div class="review-overlay" id="review-overlay"><div class="review-header"><h2>Просмотр вопроса</h2><button class="close-btn" onclick="closeReview()">×</button></div><div class="review-body" id="review-body"></div></div>
 
@@ -186,6 +191,7 @@ const USED = {};
 const PASSWORD = '1234';
 let isAuthenticated = false;
 let currentRound = 0;
+let selectedBoardTeam = -1;
 let currentTeam = -1;
 let currentCatIdx = -1;
 let currentPosIdx = -1;
@@ -249,6 +255,13 @@ function renderBoard(){
   document.getElementById('board-title').textContent = 'Раунд '+(currentRound+1)+' — '+r.name;
   const g = document.getElementById('board-grid');
   g.innerHTML='';
+  // Team row
+  g.innerHTML+='<div class="team-row-label">Отвечает команда</div>';
+  TEAM_NAMES.forEach((name,i)=>{
+    const active = selectedBoardTeam===i ? ' active' : '';
+    g.innerHTML+='<div class="team-cell'+active+'" onclick="selectBoardTeam('+i+')">'+(i+1)+'</div>';
+  });
+  // Category rows
   r.categories.forEach((cat,ci)=>{
     g.innerHTML+='<div class="cat-label">'+cat+'</div>';
     for(let pos=0;pos<5;pos++){
@@ -260,15 +273,44 @@ function renderBoard(){
   });
 }
 
-function goToBoard(){ renderBoard(); showScreen('screen-board'); }
+function goToBoard(){ selectedBoardTeam=-1; renderBoard(); showScreen('screen-board'); }
 function goToRounds(){ renderRounds(); showScreen('screen-rounds'); }
-function goToTeamSelect(){ renderTeamSelect(); showScreen('screen-team-select'); }
+
+function selectBoardTeam(i){
+  selectedBoardTeam = (selectedBoardTeam===i) ? -1 : i;
+  renderBoard();
+}
 
 function selectQuestion(catIdx,posIdx){
+  if(selectedBoardTeam<0){
+    // flash team row to hint
+    document.querySelectorAll('.team-cell').forEach(c=>{c.style.boxShadow='0 0 16px rgba(212,168,67,.6)';});
+    setTimeout(()=>{document.querySelectorAll('.team-cell').forEach(c=>{c.style.boxShadow='';});},600);
+    return;
+  }
   currentCatIdx=catIdx;
   currentPosIdx=posIdx;
-  renderTeamSelect();
-  showScreen('screen-team-select');
+  currentTeam=selectedBoardTeam;
+  const r=ROUNDS[currentRound];
+  const qIdx=currentCatIdx*5+currentPosIdx;
+  const q=r.questions[qIdx];
+  const cost=COST_MAP[currentPosIdx];
+  document.getElementById('q-badge').textContent=r.categories[currentCatIdx]+' · '+cost+' баллов · '+TEAM_NAMES[currentTeam];
+  let optsHtml=q.options.map(o=>{
+    const letter=o.charAt(0);
+    const isCorrect=q.answer.startsWith(letter);
+    return '<div class="q-option '+(isCorrect?'correct':'')+'"><span class="letter">'+letter+'</span>'+o.substring(3)+'</div>';
+  }).join('');
+  const explHtml=q.explanation.split('\n').filter(p=>p.trim()).map(p=>'<p>'+p+'</p>').join('');
+  document.getElementById('q-body').innerHTML=
+    '<div class="q-text">'+q.question+'</div>'+
+    '<div class="q-options">'+optsHtml+'</div>'+
+    '<div class="q-answer-label">Правильный ответ: '+q.answer+'</div>'+
+    '<div class="q-explanation">'+explHtml+'</div>';
+  document.getElementById('q-actions').innerHTML=
+    '<button class="q-action-btn accept" onclick="answerQuestion(true)">✓ Засчитать ('+TEAM_NAMES[currentTeam]+', +'+cost+')</button>'+
+    '<button class="q-action-btn reject" onclick="answerQuestion(false)">✗ Не засчитать</button>';
+  showScreen('screen-question');
 }
 
 function renderTeamSelect(){
@@ -320,7 +362,8 @@ function answerQuestion(correct){
     cost:cost
   });
   SCORES[currentTeam]=Math.max(0,SCORES[currentTeam]+(correct?cost:0));
-  goToBoard();
+  renderBoard();
+  showScreen('screen-board');
 }
 
 function showScreen(id){
