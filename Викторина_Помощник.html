@@ -430,7 +430,7 @@ function renderSetup(){
   TEAM_NAMES.forEach((name,i)=>{
     c.innerHTML += '<div class="setup-team"><div class="num">'+(i+1)+'</div><input id="team-name-'+i+'" value="'+name+'" placeholder="Введите название" /></div>';
   });
-  document.getElementById('screen-setup').classList.add('active');
+  showScreen('screen-setup');
 }
 function finishSetup(){
   TEAM_NAMES.forEach((_,i)=>{
@@ -534,7 +534,7 @@ function answerQuestion(correct){
     categoryName:r.categories[currentCatIdx],
     cost:cost
   });
-  SCORES[currentTeam]=Math.max(0,SCORES[currentTeam]+(correct?cost:0));
+  SCORES[currentTeam]=SCORES[currentTeam]+(correct?cost:-cost);
   selectedBoardTeam=-1;
   saveState();
   renderBoard();
