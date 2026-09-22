@@ -409,6 +409,7 @@ function startNewGame(){
   SCORES.fill(0);
   HISTORY.length=0;
   Object.keys(USED).forEach(k=>delete USED[k]);
+  TEAM_NAMES.splice(0,5,'Команда 1','Команда 2','Команда 3','Команда 4','Команда 5');
   currentRound=0;
   selectedBoardTeam=-1;
   renderSetup();
