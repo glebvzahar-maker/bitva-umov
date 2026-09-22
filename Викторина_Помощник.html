@@ -137,7 +137,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .setup-start-btn{margin-top:16px;background:var(--gold);color:var(--bg);border:none;border-radius:10px;padding:14px 40px;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;}
 .setup-start-btn:active{transform:scale(.96);}
 
-.review-overlay{display:none;flex-direction:column;position:fixed;inset:0;z-index:200;background:rgba(10,14,23,.98);overflow-y:auto;}
+.review-overlay{display:none;flex-direction:column;position:fixed;inset:0;z-index:300;background:rgba(10,14,23,.98);overflow-y:auto;}
 .review-overlay.open{display:flex;}
 .review-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(212,168,67,.15);flex-shrink:0;}
 .review-header h2{font-family:'Playfair Display',serif;color:var(--gold);font-size:16px;}
@@ -314,6 +314,9 @@ function renderArchiveList(){
   }).join('');
 }
 function resumeArchive(i){
+  if(HISTORY.length>0 || SCORES.some(s=>s>0)){
+    archiveCurrentGame();
+  }
   const archives=getArchives();
   const a=archives[i];
   SCORES.splice(0,5,...a.scores);
@@ -323,6 +326,7 @@ function resumeArchive(i){
   currentRound=0;
   selectedBoardTeam=-1;
   closeArchive();
+  saveState();
   renderRounds();
   showScreen('screen-rounds');
   showToast('Игра восстановлена');
@@ -330,7 +334,6 @@ function resumeArchive(i){
 function viewArchive(i){
   const archives=getArchives();
   const a=archives[i];
-  const overlay=document.getElementById('review-overlay');
   const b=document.getElementById('review-body');
   const teamStr=a.teamNames.map((n,j)=>'<strong>'+n+'</strong>: '+a.scores[j]+' баллов').join('<br>');
   let historyHtml='';
@@ -342,14 +345,14 @@ function viewArchive(i){
         const q=r.questions[h.cat*5+h.pos];
         if(!q) return '';
         return '<div class="review-option '+(h.correct?'correct':'')+'" style="margin-top:6px;">'+
-          (h.correct?'✓':'✗')+' '+TEAM_NAMES[h.team]+' — '+h.categoryName+' '+h.cost+' — '+
+          (h.correct?'✓':'✗')+' '+a.teamNames[h.team]+' — '+h.categoryName+' '+h.cost+' — '+
           q.question.substring(0,60)+'…</div>';
       }).join('');
   }
   b.innerHTML='<div class="review-badge">'+a.date+'</div>'+
     '<div style="margin-top:12px;line-height:1.8;">'+teamStr+'</div>'+
     historyHtml;
-  overlay.classList.add('open');
+  document.getElementById('review-overlay').classList.add('open');
 }
 function deleteArchive(i){
   if(!confirm('Удалить запись?')) return;
