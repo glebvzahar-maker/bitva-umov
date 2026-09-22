@@ -17,7 +17,13 @@ html,body{height:100%;overflow:hidden;}
 body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
 
 .header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(20,26,42,.95);border-bottom:1px solid rgba(212,168,67,.15);flex-shrink:0;z-index:10;}
-.header h1{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--gold);}
+.header h1{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--gold);cursor:pointer;position:relative;}
+.header h1::after{content:' ▾';font-size:10px;opacity:.6;}
+.header-menu{display:none;position:absolute;top:100%;left:0;background:var(--card);border:1px solid rgba(212,168,67,.25);border-radius:8px;min-width:200px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.5);overflow:hidden;}
+.header-menu.open{display:block;}
+.header-menu-item{padding:12px 16px;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;transition:background .2s;border-bottom:1px solid rgba(255,255,255,.04);}
+.header-menu-item:last-child{border-bottom:none;}
+.header-menu-item:active{background:rgba(212,168,67,.1);}
 .header .score-toggle{background:var(--gold);color:var(--bg);border:none;padding:8px 18px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;}
 .header .score-toggle:active{transform:scale(.95);}
 
@@ -195,7 +201,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </style>
 </head>
 <body>
-<div class="header" id="app-header" style="display:none"><h1>Битва умов</h1><button class="score-toggle" onclick="toggleScore()">Результат Викторины</button></div>
+<div class="header" id="app-header" style="display:none"><h1 onclick="toggleHeaderMenu(event)">Битва умов</h1><div class="header-menu" id="header-menu"><div class="header-menu-item" onclick="startNewGame()">Новая викторина</div><div class="header-menu-item" onclick="openArchive()">Архив</div></div><button class="score-toggle" onclick="toggleScore()">Результат Викторины</button></div>
 
 <div class="lock-screen active" id="screen-lock">
   <div class="lock-icon">🔒</div>
@@ -291,6 +297,7 @@ function archiveCurrentGame(){
   saveArchives(archives);
 }
 function openArchive(){
+  document.getElementById('header-menu').classList.remove('open');
   renderArchiveList();
   document.getElementById('archive-overlay').classList.add('open');
 }
@@ -354,6 +361,17 @@ function init(){
   document.getElementById('lock-password').addEventListener('keydown', function(e){
     if(e.key === 'Enter') checkPassword();
   });
+  document.addEventListener('click', function(e){
+    const menu=document.getElementById('header-menu');
+    const h1=document.querySelector('.header h1');
+    if(menu && !menu.contains(e.target) && e.target!==h1){
+      menu.classList.remove('open');
+    }
+  });
+}
+function toggleHeaderMenu(e){
+  e.stopPropagation();
+  document.getElementById('header-menu').classList.toggle('open');
 }
 function checkPassword(){
   const input = document.getElementById('lock-password').value.trim();
@@ -379,6 +397,7 @@ function checkPassword(){
   }
 }
 function startNewGame(){
+  document.getElementById('header-menu').classList.remove('open');
   if(HISTORY.length>0 || SCORES.some(s=>s>0)){
     archiveCurrentGame();
     showToast('Предыдущая викторина сохранена в архив');
@@ -392,6 +411,7 @@ function startNewGame(){
   renderSetup();
 }
 function continueGame(){
+  document.getElementById('header-menu').classList.remove('open');
   renderRounds();
   showScreen('screen-rounds');
   showToast('Игра восстановлена');
