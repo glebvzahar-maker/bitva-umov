@@ -17,9 +17,11 @@ html,body{height:100%;overflow:hidden;}
 body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
 
 .header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(20,26,42,.95);border-bottom:1px solid rgba(212,168,67,.15);flex-shrink:0;z-index:10;}
-.header h1{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--gold);cursor:pointer;position:relative;}
-.header h1::after{content:' ▾';font-size:10px;opacity:.6;}
-.header-menu{display:none;position:absolute;top:100%;left:0;background:var(--card);border:1px solid rgba(212,168,67,.25);border-radius:8px;min-width:200px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.5);overflow:hidden;}
+.header-left{display:flex;align-items:center;gap:6px;position:relative;}
+.header h1{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--gold);}
+.header-arrow{background:var(--card);border:1px solid rgba(212,168,67,.3);color:var(--gold);font-size:16px;font-weight:700;width:28px;height:28px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+.header-arrow:active{transform:scale(.9);}
+.header-menu{display:none;position:absolute;top:100%;left:0;background:var(--card);border:1px solid rgba(212,168,67,.25);border-radius:8px;min-width:220px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.5);overflow:hidden;margin-top:4px;}
 .header-menu.open{display:block;}
 .header-menu-item{padding:12px 16px;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;transition:background .2s;border-bottom:1px solid rgba(255,255,255,.04);}
 .header-menu-item:last-child{border-bottom:none;}
@@ -201,7 +203,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </style>
 </head>
 <body>
-<div class="header" id="app-header" style="display:none"><h1 onclick="toggleHeaderMenu(event)">Битва умов</h1><div class="header-menu" id="header-menu"><div class="header-menu-item" onclick="startNewGame()">Новая викторина</div><div class="header-menu-item" onclick="openArchive()">Архив</div></div><button class="score-toggle" onclick="toggleScore()">Результат Викторины</button></div>
+<div class="header" id="app-header" style="display:none"><div class="header-left"><h1>Битва умов</h1><button class="header-arrow" onclick="toggleHeaderMenu(event)">▾</button><div class="header-menu" id="header-menu"><div class="header-menu-item" onclick="startNewGame()">Новая викторина</div><div class="header-menu-item" onclick="openArchive()">Архив</div></div></div><button class="score-toggle" onclick="toggleScore()">Результат Викторины</button></div>
 
 <div class="lock-screen active" id="screen-lock">
   <div class="lock-icon">🔒</div>
@@ -363,15 +365,16 @@ function init(){
   });
   document.addEventListener('click', function(e){
     const menu=document.getElementById('header-menu');
-    const h1=document.querySelector('.header h1');
-    if(menu && !menu.contains(e.target) && e.target!==h1){
+    const arrow=document.querySelector('.header-arrow');
+    if(menu && !menu.contains(e.target) && e.target!==arrow){
       menu.classList.remove('open');
     }
   });
 }
 function toggleHeaderMenu(e){
   e.stopPropagation();
-  document.getElementById('header-menu').classList.toggle('open');
+  const menu=document.getElementById('header-menu');
+  menu.classList.toggle('open');
 }
 function checkPassword(){
   const input = document.getElementById('lock-password').value.trim();
