@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Викторина — Битва умов</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0e17;--card:#141a2a;--gold:#d4a843;--gold2:#f0d68a;
+  --text:#e8ecf2;--muted:#6b7a94;--green:#3ecf7a;--red:#e05555;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
+
+.header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(20,26,42,.95);border-bottom:1px solid rgba(212,168,67,.15);flex-shrink:0;z-index:10;}
+.header-left{display:flex;align-items:center;gap:6px;position:relative;}
+.header h1{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--gold);}
+.header-arrow{background:var(--card);border:1px solid rgba(212,168,67,.3);color:var(--gold);font-size:16px;font-weight:700;width:28px;height:28px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+.header-arrow:active{transform:scale(.9);}
+.header-menu{display:none;position:absolute;top:100%;left:0;background:var(--card);border:1px solid rgba(212,168,67,.25);border-radius:8px;min-width:220px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.5);overflow:hidden;margin-top:4px;}
+.header-menu.open{display:block;}
+.header-menu-item{padding:12px 16px;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;transition:background .2s;border-bottom:1px solid rgba(255,255,255,.04);}
+.header-menu-item:last-child{border-bottom:none;}
+.header-menu-item:active{background:rgba(212,168,67,.1);}
+.header .score-toggle{background:var(--gold);color:var(--bg);border:none;padding:8px 18px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;}
+.header .score-toggle:active{transform:scale(.95);}
+
+.screen{display:none;flex:1;overflow-y:auto;flex-direction:column;}
+.screen.active{display:flex;}
+
+.lock-screen{display:none;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:30px 16px;gap:16px;}
+.lock-screen.active{display:flex;}
+.lock-icon{font-size:48px;margin-bottom:8px;}
+.lock-title{font-family:'Playfair Display',serif;font-size:24px;color:var(--gold);text-align:center;}
+.lock-sub{font-size:13px;color:var(--muted);text-align:center;max-width:300px;}
+.lock-input-wrap{display:flex;align-items:center;gap:8px;width:100%;max-width:300px;}
+.lock-input{flex:1;background:var(--card);border:1px solid rgba(212,168,67,.3);border-radius:8px;color:var(--text);font-size:18px;font-weight:600;padding:12px 16px;text-align:center;font-family:'Inter',sans-serif;letter-spacing:4px;outline:none;}
+.lock-input:focus{border-color:var(--gold);}
+.lock-btn{background:var(--gold);color:var(--bg);border:none;border-radius:8px;padding:12px 20px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;}
+.lock-btn:active{transform:scale(.96);}
+.lock-error{font-size:13px;color:var(--red);text-align:center;min-height:20px;}
+
+.rounds-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:20px 16px;max-width:600px;margin:0 auto;width:100%;}
+.round-card{background:var(--card);border:1px solid rgba(212,168,67,.2);border-radius:14px;padding:30px 16px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.round-card:active{transform:scale(.97);}
+.round-card .num{font-family:'Playfair Display',serif;font-size:56px;font-weight:900;color:var(--gold);line-height:1;}
+.round-card .label{font-size:18px;font-weight:700;margin-top:8px;}
+.round-card .sub{font-size:13px;color:var(--muted);margin-top:6px;}
+.round-card .progress{position:absolute;bottom:0;left:0;right:0;height:4px;background:rgba(255,255,255,.05);}
+.round-card .progress-fill{height:100%;background:var(--gold);transition:width .3s;width:0%;}
+
+.board-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;flex-shrink:0;}
+.board-header .back-btn{background:none;border:none;color:var(--gold);font-size:22px;cursor:pointer;padding:4px 8px;}
+.board-header h2{font-family:'Playfair Display',serif;font-size:17px;color:var(--gold);text-align:center;}
+
+.board-grid{display:grid;grid-template-columns:1.8fr repeat(5,1fr);gap:5px;padding:8px 12px;flex:1;align-content:stretch;}
+.team-row-label{background:var(--gold);color:var(--bg);border-radius:6px;padding:8px 6px;text-align:center;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;text-transform:uppercase;letter-spacing:.5px;}
+.team-cell{background:linear-gradient(135deg,#1a2240,#162038);border:2px solid rgba(212,168,67,.3);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .25s;min-height:44px;user-select:none;gap:2px;padding:4px 2px;line-height:1.2;text-align:center;overflow:hidden;}
+.team-cell .team-num{font-size:16px;font-weight:900;}
+.team-cell .team-name-cell{font-size:10px;font-family:'Inter',sans-serif;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+.team-cell:active{transform:scale(.93);}
+.team-cell.active{border-color:var(--gold);color:var(--gold);background:rgba(212,168,67,.12);box-shadow:0 0 12px rgba(212,168,67,.25);}
+.q-cell.no-team{opacity:.45;cursor:not-allowed;}
+.cat-label{background:var(--card);border:1px solid rgba(212,168,67,.2);border-radius:6px;padding:10px 8px;text-align:center;font-size:15px;font-weight:700;color:var(--gold);display:flex;align-items:center;justify-content:center;line-height:1.3;}
+.q-cell{background:linear-gradient(135deg,#1a2240,#162038);border:1px solid rgba(212,168,67,.18);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--gold2);cursor:pointer;transition:all .25s;min-height:54px;position:relative;}
+.q-cell:active{transform:scale(.93);}
+.q-cell.used{background:rgba(20,26,42,.4);border-color:rgba(80,80,80,.2);color:rgba(80,80,80,.35);cursor:default;pointer-events:none;text-decoration:line-through;}
+.q-cell.used::after{content:"";position:absolute;inset:0;background:rgba(10,14,23,.6);border-radius:6px;}
+
+.team-select-grid{display:flex;flex-direction:column;gap:10px;padding:20px 16px;max-width:600px;margin:0 auto;width:100%;}
+.team-card{background:var(--card);border:1px solid rgba(212,168,67,.2);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;}
+.team-card:active{transform:scale(.97);border-color:var(--gold);}
+.team-card .team-card-name{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--gold);margin-bottom:4px;}
+.team-card .team-card-score{font-size:13px;color:var(--muted);}
+
+.question-screen{display:none;flex-direction:column;height:100dvh;position:relative;}
+.question-screen.active{display:flex;}
+.q-top-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(20,26,42,.95);border-bottom:1px solid rgba(212,168,67,.15);flex-shrink:0;}
+.q-top-bar .back-btn{background:none;border:none;color:var(--gold);font-size:20px;cursor:pointer;}
+.q-top-bar .q-badge{background:var(--gold);color:var(--bg);font-weight:700;padding:4px 12px;border-radius:16px;font-size:11px;}
+.q-body{flex:1;overflow-y:auto;padding:16px;padding-bottom:90px;display:flex;flex-direction:column;gap:14px;}
+.q-text{font-size:16px;font-weight:600;line-height:1.5;background:var(--card);border-radius:10px;padding:16px;border-left:3px solid var(--gold);}
+.q-options{display:flex;flex-direction:column;gap:8px;}
+.q-option{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:12px 14px;font-size:14px;line-height:1.4;transition:all .3s;}
+.q-option.correct{border-color:var(--green);background:rgba(62,207,122,.08);}
+.q-option .letter{display:inline-block;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.07);text-align:center;line-height:22px;font-weight:700;font-size:12px;margin-right:8px;}
+.q-option.correct .letter{background:var(--green);color:var(--bg);}
+.q-answer-label{font-size:13px;font-weight:700;color:var(--green);padding:10px 14px;background:rgba(62,207,122,.06);border-radius:8px;text-align:center;}
+.q-explanation{background:var(--card);border-radius:10px;padding:14px;font-size:13px;line-height:1.7;color:var(--muted);border:1px solid rgba(255,255,255,.04);}
+.q-explanation p{margin-bottom:8px;}
+.q-explanation strong{color:var(--text);}
+
+.q-actions{display:flex;gap:12px;padding:14px 16px;flex-shrink:0;background:rgba(20,26,42,.98);border-top:1px solid rgba(212,168,67,.2);position:absolute;bottom:0;left:0;right:0;z-index:10;}
+.q-action-btn{flex:1;padding:20px 10px;border:none;border-radius:12px;font-size:18px;font-weight:700;cursor:pointer;transition:all .2s;}
+.q-action-btn:active{transform:scale(.96);}
+.q-action-btn.accept{background:var(--green);color:var(--bg);}
+.q-action-btn.reject{background:var(--red);color:#fff;}
+
+.scoreboard{display:none;flex-direction:column;position:fixed;inset:0;z-index:100;background:rgba(10,14,23,.97);}
+.scoreboard.open{display:flex;}
+.score-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(212,168,67,.15);flex-shrink:0;}
+.score-header h2{font-family:'Playfair Display',serif;color:var(--gold);font-size:18px;}
+.score-header .close-btn{background:none;border:none;color:var(--muted);font-size:26px;cursor:pointer;}
+.score-teams{display:flex;flex-direction:column;gap:10px;padding:16px;flex:1;overflow-y:auto;}
+.score-team{background:var(--card);border-radius:10px;padding:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.team-position{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:var(--gold);width:50px;text-align:center;flex-shrink:0;}
+.team-name{font-weight:700;font-size:14px;width:90px;flex-shrink:0;color:var(--gold);}
+.team-score{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;width:70px;text-align:center;flex-shrink:0;}
+.team-history{display:flex;gap:4px;flex-wrap:wrap;flex:1;}
+.history-plaque{display:inline-block;padding:3px 6px;border-radius:4px;font-size:9px;font-weight:600;line-height:1;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;transition:all .2s;}
+.history-plaque:active{transform:scale(.92);}
+.history-plaque.correct{background:rgba(62,207,122,.15);color:var(--green);}
+.history-plaque.incorrect{background:rgba(224,85,85,.15);color:var(--red);}
+
+.choice-screen{display:none;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:30px 16px;gap:16px;}
+.choice-screen.active{display:flex;}
+.choice-title{font-family:'Playfair Display',serif;font-size:24px;color:var(--gold);text-align:center;margin-bottom:8px;}
+.choice-sub{font-size:13px;color:var(--muted);text-align:center;max-width:320px;margin-bottom:16px;}
+.choice-btn{width:100%;max-width:360px;background:var(--card);border:1px solid rgba(212,168,67,.25);border-radius:12px;padding:20px 16px;text-align:center;cursor:pointer;transition:all .2s;}
+.choice-btn:active{transform:scale(.97);border-color:var(--gold);}
+.choice-btn .choice-btn-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--gold);margin-bottom:4px;}
+.choice-btn .choice-btn-desc{font-size:13px;color:var(--muted);}
+.choice-divider{font-size:12px;color:var(--muted);margin:4px 0;}
+
+.setup-screen{display:none;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:30px 16px;gap:16px;}
+.setup-screen.active{display:flex;}
+.setup-title{font-family:'Playfair Display',serif;font-size:24px;color:var(--gold);text-align:center;margin-bottom:10px;}
+.setup-team{display:flex;align-items:center;gap:10px;width:100%;max-width:400px;background:var(--card);border-radius:10px;padding:12px 16px;}
+.setup-team .num{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:var(--gold);width:30px;text-align:center;flex-shrink:0;}
+.setup-team input{flex:1;background:none;border:none;border-bottom:1px solid rgba(212,168,67,.3);color:var(--text);font-size:15px;font-weight:600;padding:6px 0;font-family:'Inter',sans-serif;outline:none;}
+.setup-team input:focus{border-bottom-color:var(--gold);}
+.setup-team input::placeholder{color:var(--muted);font-weight:400;}
+.setup-start-btn{margin-top:16px;background:var(--gold);color:var(--bg);border:none;border-radius:10px;padding:14px 40px;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;}
+.setup-start-btn:active{transform:scale(.96);}
+
+.review-overlay{display:none;flex-direction:column;position:fixed;inset:0;z-index:300;background:rgba(10,14,23,.98);overflow-y:auto;}
+.review-overlay.open{display:flex;}
+.review-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(212,168,67,.15);flex-shrink:0;}
+.review-header h2{font-family:'Playfair Display',serif;color:var(--gold);font-size:16px;}
+.review-header .close-btn{background:none;border:none;color:var(--muted);font-size:26px;cursor:pointer;}
+.review-body{padding:20px 16px;display:flex;flex-direction:column;gap:16px;}
+.review-badge{background:var(--gold);color:var(--bg);font-weight:700;padding:4px 12px;border-radius:16px;font-size:11px;align-self:flex-start;}
+.review-team{font-size:14px;color:var(--muted);font-weight:600;}
+.review-result{font-size:14px;font-weight:700;padding:6px 12px;border-radius:6px;align-self:flex-start;}
+.review-result.correct{background:rgba(62,207,122,.12);color:var(--green);}
+.review-result.incorrect{background:rgba(224,85,85,.12);color:var(--red);}
+.review-q{font-size:16px;font-weight:600;line-height:1.5;background:var(--card);border-radius:10px;padding:16px;border-left:3px solid var(--gold);}
+.review-options{display:flex;flex-direction:column;gap:6px;}
+.review-option{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:10px 14px;font-size:13px;line-height:1.4;}
+.review-option.correct{border-color:var(--green);background:rgba(62,207,122,.08);}
+.review-answer{font-size:13px;font-weight:700;color:var(--green);padding:8px 14px;background:rgba(62,207,122,.06);border-radius:8px;text-align:center;}
+.review-expl{background:var(--card);border-radius:10px;padding:14px;font-size:12px;line-height:1.7;color:var(--muted);border:1px solid rgba(255,255,255,.04);}
+.review-expl p{margin-bottom:8px;}
+.review-expl strong{color:var(--text);}
+
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(20,26,42,.95);border:1px solid var(--gold);color:var(--gold);font-size:14px;font-weight:600;padding:12px 24px;border-radius:10px;z-index:999;pointer-events:none;opacity:0;transition:opacity .3s;text-align:center;max-width:90vw;}
+.toast.show{opacity:1;}
+
+.rounds-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;flex-shrink:0;}
+.rounds-header .back-btn{background:none;border:none;color:var(--gold);font-size:22px;cursor:pointer;padding:4px 8px;}
+.rounds-header h2{font-family:'Playfair Display',serif;font-size:17px;color:var(--gold);text-align:center;flex:1;}
+.rounds-header .archive-btn{background:var(--card);border:1px solid rgba(212,168,67,.3);color:var(--gold);font-size:13px;font-weight:600;padding:8px 14px;border-radius:8px;cursor:pointer;transition:all .2s;}
+.rounds-header .archive-btn:active{transform:scale(.95);}
+
+.archive-overlay{display:none;flex-direction:column;position:fixed;inset:0;z-index:200;background:rgba(10,14,23,.98);overflow-y:auto;}
+.archive-overlay.open{display:flex;}
+.archive-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(212,168,67,.15);flex-shrink:0;}
+.archive-header h2{font-family:'Playfair Display',serif;color:var(--gold);font-size:18px;}
+.archive-header .close-btn{background:none;border:none;color:var(--muted);font-size:26px;cursor:pointer;}
+.archive-list{padding:16px;display:flex;flex-direction:column;gap:12px;flex:1;overflow-y:auto;}
+.archive-item{background:var(--card);border:1px solid rgba(212,168,67,.15);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px;}
+.archive-item-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.archive-item-date{font-size:13px;color:var(--muted);}
+.archive-item-teams{font-size:12px;color:var(--muted);line-height:1.4;}
+.archive-item-actions{display:flex;gap:8px;}
+.archive-item-actions button{padding:6px 14px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
+.archive-item-actions button:active{transform:scale(.95);}
+.archive-resume{background:var(--green);color:var(--bg);}
+.archive-view{background:var(--gold);color:var(--bg);}
+.archive-delete{background:var(--red);color:#fff;}
+.archive-empty{text-align:center;color:var(--muted);padding:40px 20px;font-size:14px;}
+
+@media(max-width:600px){
+  .rounds-grid{grid-template-columns:1fr;gap:14px;padding:16px 12px;}
+  .round-card{padding:36px 16px;}
+  .round-card .num{font-size:64px;}
+  .round-card .label{font-size:20px;}
+  .round-card .sub{font-size:14px;}
+}
+@media(min-width:768px){
+  .board-grid{gap:6px;padding:12px 20px;}
+  .q-cell{font-size:24px;min-height:60px;}
+  .cat-label{font-size:16px;}
+  .q-text{font-size:18px;}
+  .q-explanation{font-size:14px;}
+  .team-card{padding:28px;}
+  .team-card .team-card-name{font-size:24px;}
+}
+
+.pwd-overlay{display:none;position:fixed;inset:0;z-index:400;background:rgba(10,14,23,.85);align-items:center;justify-content:center;}
+.pwd-overlay.open{display:flex;}
+.pwd-modal{background:var(--card);border:1px solid rgba(212,168,67,.25);border-radius:14px;padding:28px 24px;width:90%;max-width:340px;display:flex;flex-direction:column;gap:14px;}
+.pwd-modal-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--gold);text-align:center;}
+.pwd-modal-input{background:var(--bg);border:1px solid rgba(212,168,67,.3);border-radius:8px;color:var(--text);font-size:18px;font-weight:600;padding:12px 16px;text-align:center;font-family:'Inter',sans-serif;letter-spacing:4px;outline:none;width:100%;}
+.pwd-modal-input:focus{border-color:var(--gold);}
+.pwd-modal-actions{display:flex;gap:10px;}
+.pwd-modal-actions button{flex:1;padding:12px;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;}
+.pwd-modal-actions button:active{transform:scale(.96);}
+.pwd-modal-ok{background:var(--gold);color:var(--bg);}
+.pwd-modal-cancel{background:var(--card);border:1px solid rgba(255,255,255,.1);color:var(--muted);}
+.pwd-modal-error{font-size:12px;color:var(--red);text-align:center;min-height:16px;}
+
+}
+</style>
+</head>
+<body>
+<div class="header" id="app-header" style="display:none"><div class="header-left"><h1>Битва умов</h1><button class="header-arrow" onclick="toggleHeaderMenu(event)">▾</button><div class="header-menu" id="header-menu"><div class="header-menu-item" onclick="startNewGame()">Новая викторина</div><div class="header-menu-item" onclick="openArchive()">Архив</div></div></div><button class="score-toggle" onclick="toggleScore()">Результат Викторины</button></div>
+
+<div class="lock-screen active" id="screen-lock">
+  <div class="lock-icon">🔒</div>
+  <div class="lock-title">Битва умов</div>
+  <div class="lock-sub">Введите пароль для доступа к викторине</div>
+  <div class="lock-input-wrap">
+    <input type="password" class="lock-input" id="lock-password" maxlength="10" placeholder="····" inputmode="numeric">
+    <button class="lock-btn" onclick="checkPassword()">→</button>
+  </div>
+  <div class="lock-error" id="lock-error"></div>
+</div>
+
+<div class="choice-screen" id="screen-choice">
+  <div class="choice-title">Битва умов</div>
+  <div class="choice-sub" id="choice-sub"></div>
+  <div class="choice-btn" onclick="startNewGame()"><div class="choice-btn-title">Новая викторина</div><div class="choice-btn-desc">Начать с нуля, ввести названия команд</div></div>
+  <div class="choice-divider">или</div>
+  <div class="choice-btn" onclick="continueGame()"><div class="choice-btn-title">Продолжить последнюю</div><div class="choice-btn-desc" id="choice-continue-desc"></div></div>
+</div>
+
+<div class="setup-screen" id="screen-setup">
+  <div class="setup-title">Назовите команды</div>
+  <div id="setup-teams"></div>
+  <button class="setup-start-btn" onclick="finishSetup()">Начать игру</button>
+</div>
+
+<div class="screen" id="screen-rounds"><div class="rounds-header"><button class="back-btn" onclick="goToSetup()">✎</button><h2>Выберите раунд</h2><button class="archive-btn" onclick="openArchive()">📁 Архив</button></div><div class="rounds-grid" id="rounds-grid"></div></div>
+<div class="screen" id="screen-board"><div class="board-header"><button class="back-btn" onclick="goToRounds()">←</button><h2 id="board-title"></h2><div></div></div><div class="board-grid" id="board-grid"></div></div>
+<div class="screen" id="screen-team-select"><div class="board-header"><button class="back-btn" onclick="goToBoard()">←</button><h2>Какая команда отвечает?</h2><div></div></div><div class="team-select-grid" id="team-select-grid"></div></div>
+<div class="question-screen" id="screen-question"><div class="q-top-bar"><button class="back-btn" onclick="goToBoard()">←</button><div class="q-badge" id="q-badge"></div><div></div></div><div class="q-body" id="q-body"></div><div class="q-actions" id="q-actions"></div></div>
+<div class="scoreboard" id="scoreboard"><div class="score-header"><h2>Результат Викторины</h2><button class="close-btn" onclick="toggleScore()">×</button></div><div class="score-teams" id="score-teams"></div></div>
+<div class="review-overlay" id="review-overlay"><div class="review-header"><h2>Просмотр вопроса</h2><button class="close-btn" onclick="closeReview()">×</button></div><div class="review-body" id="review-body"></div></div>
+<div class="archive-overlay" id="archive-overlay"><div class="archive-header"><h2>Архив викторин</h2><button class="close-btn" onclick="closeArchive()">×</button></div><div class="archive-list" id="archive-list"></div></div>
+<div class="toast" id="toast"></div>
+<div class="pwd-overlay" id="pwd-overlay"><div class="pwd-modal"><div class="pwd-modal-title" id="pwd-modal-title">Введите пароль</div><input type="password" class="pwd-modal-input" id="pwd-modal-input" maxlength="10" placeholder="····" inputmode="numeric"><div class="pwd-modal-error" id="pwd-modal-error"></div><div class="pwd-modal-actions"><button class="pwd-modal-cancel" onclick="closePwdModal()">Отмена</button><button class="pwd-modal-ok" onclick="submitPwdModal()">OK</button></div></div></div>
+
+<script>
+const ROUNDS = __ROUNDS_JSON__;
+const SCORES = [0,0,0,0,0];
+const TEAM_NAMES = ['Команда 1','Команда 2','Команда 3','Команда 4','Команда 5'];
+const HISTORY = [];
+const USED = {};
+const PASSWORD = '1234';
+let isAuthenticated = false;
+let currentRound = 0;
+let selectedBoardTeam = -1;
+let currentTeam = -1;
+let currentCatIdx = -1;
+let currentPosIdx = -1;
+const COST_MAP = [100,200,300,400,500];
+const LETTERS = 'АБВГ';
+
+function esc(s){
+  return String(s==null?'':s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function answerText(q){
+  const i=LETTERS.indexOf(q.answer);
+  return i<0 ? q.answer : LETTERS[i]+') '+q.options[i];
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function saveState(){
+  try{
+    const state={scores:SCORES.slice(),teamNames:TEAM_NAMES.slice(),history:HISTORY.slice(),used:USED,round:currentRound};
+    localStorage.setItem('quiz_active',JSON.stringify(state));
+  }catch(e){}
+}
+function loadState(){
+  try{
+    const s=localStorage.getItem('quiz_active');
+    if(!s) return false;
+    const state=JSON.parse(s);
+    SCORES.splice(0,5,...state.scores);
+    TEAM_NAMES.splice(0,5,...state.teamNames);
+    HISTORY.length=0; HISTORY.push(...state.history);
+    Object.assign(USED,state.used);
+    currentRound=state.round||0;
+    return true;
+  }catch(e){return false;}
+}
+function clearActive(){ try{localStorage.removeItem('quiz_active');}catch(e){} }
+
+function archiveKey(){ return 'quiz_archive'; }
+function getArchives(){ try{return JSON.parse(localStorage.getItem(archiveKey()))||[];}catch(e){return[];} }
+function saveArchives(arr){ try{localStorage.setItem(archiveKey(),JSON.stringify(arr));}catch(e){} }
+function archiveCurrentGame(){
+  const archives=getArchives();
+  archives.push({
+    id:Date.now(),
+    date:new Date().toLocaleString('ru-RU'),
+    teamNames:TEAM_NAMES.slice(),
+    scores:SCORES.slice(),
+    history:HISTORY.slice(),
+    used:{...USED}
+  });
+  saveArchives(archives);
+}
+function openArchive(){
+  document.getElementById('header-menu').classList.remove('open');
+  renderArchiveList();
+  document.getElementById('archive-overlay').classList.add('open');
+}
+function closeArchive(){ document.getElementById('archive-overlay').classList.remove('open'); }
+function renderArchiveList(){
+  const archives=getArchives();
+  const c=document.getElementById('archive-list');
+  if(!archives.length){ c.innerHTML='<div class="archive-empty">Архив пуст</div>'; return; }
+  const reversed=archives.slice().reverse();
+  c.innerHTML=reversed.map((a)=>{
+    const origIdx=archives.indexOf(a);
+    const teamStr=a.teamNames.map((n,j)=>n+': '+a.scores[j]).join(' | ');
+    return '<div class="archive-item"><div class="archive-item-top"><div class="archive-item-date">'+a.date+'</div></div><div class="archive-item-teams">'+teamStr+'</div><div class="archive-item-actions"><button class="archive-resume" onclick="resumeArchive('+origIdx+')">Продолжить</button><button class="archive-view" onclick="viewArchive('+origIdx+')">Просмотр</button><button class="archive-delete" onclick="deleteArchive('+origIdx+')">Удалить</button></div></div>';
+  }).join('');
+}
+function resumeArchive(i){
+  if(HISTORY.length>0 || SCORES.some(s=>s>0)){
+    archiveCurrentGame();
+  }
+  const archives=getArchives();
+  const a=archives[i];
+  SCORES.splice(0,5,...a.scores);
+  TEAM_NAMES.splice(0,5,...a.teamNames);
+  HISTORY.length=0; HISTORY.push(...a.history);
+  Object.assign(USED,a.used);
+  currentRound=0;
+  selectedBoardTeam=-1;
+  closeArchive();
+  saveState();
+  renderRounds();
+  showScreen('screen-rounds');
+  showToast('Игра восстановлена');
+}
+function viewArchive(i){
+  const archives=getArchives();
+  const a=archives[i];
+  const b=document.getElementById('review-body');
+  const teamStr=a.teamNames.map((n,j)=>'<strong>'+n+'</strong>: '+a.scores[j]+' баллов').join('<br>');
+  let historyHtml='';
+  if(a.history.length){
+    historyHtml='<div style="margin-top:12px;"><strong>История ответов:</strong></div>'+
+      a.history.map(h=>{
+        const r=ROUNDS[h.round];
+        if(!r) return '';
+        const q=r.questions[h.cat*5+h.pos];
+        if(!q) return '';
+        return '<div class="review-option '+(h.correct?'correct':'')+'" style="margin-top:6px;">'+
+          (h.correct?'✓':'✗')+' '+a.teamNames[h.team]+' — '+h.categoryName+' '+h.cost+' — '+
+          q.question.substring(0,60)+'…</div>';
+      }).join('');
+  }
+  b.innerHTML='<div class="review-badge">'+a.date+'</div>'+
+    '<div style="margin-top:12px;line-height:1.8;">'+teamStr+'</div>'+
+    historyHtml;
+  document.getElementById('review-overlay').classList.add('open');
+}
+function deleteArchive(i){
+  pendingDeleteIdx=i;
+  document.getElementById('pwd-modal-title').textContent='Введите пароль для удаления';
+  document.getElementById('pwd-modal-input').value='';
+  document.getElementById('pwd-modal-error').textContent='';
+  document.getElementById('pwd-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('pwd-modal-input').focus(),100);
+}
+let pendingDeleteIdx=-1;
+let pendingPwdCallback=null;
+function submitPwdModal(){
+  const val=document.getElementById('pwd-modal-input').value.trim();
+  if(pendingDeleteIdx>=0){
+    if(val==='3321'){
+      closePwdModal();
+      const archives=getArchives();
+      archives.splice(pendingDeleteIdx,1);
+      saveArchives(archives);
+      pendingDeleteIdx=-1;
+      renderArchiveList();
+      showToast('Запись удалена');
+    } else {
+      document.getElementById('pwd-modal-error').textContent='Неверный пароль';
+      document.getElementById('pwd-modal-input').value='';
+      document.getElementById('pwd-modal-input').focus();
+    }
+  } else if(pendingPwdCallback){
+    pendingPwdCallback(val);
+  }
+}
+function closePwdModal(){
+  document.getElementById('pwd-overlay').classList.remove('open');
+  pendingDeleteIdx=-1;
+  pendingPwdCallback=null;
+}
+
+function init(){
+  document.getElementById('lock-password').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') checkPassword();
+  });
+  document.getElementById('pwd-modal-input').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') submitPwdModal();
+    if(e.key === 'Escape') closePwdModal();
+  });
+  document.addEventListener('click', function(e){
+    const menu=document.getElementById('header-menu');
+    const arrow=document.querySelector('.header-arrow');
+    if(menu && !menu.contains(e.target) && e.target!==arrow){
+      menu.classList.remove('open');
+    }
+  });
+}
+function toggleHeaderMenu(e){
+  e.stopPropagation();
+  const menu=document.getElementById('header-menu');
+  menu.classList.toggle('open');
+}
+function checkPassword(){
+  const input = document.getElementById('lock-password').value.trim();
+  if(input === PASSWORD){
+    isAuthenticated = true;
+    document.getElementById('lock-error').textContent = '';
+    document.getElementById('screen-lock').classList.remove('active');
+    document.getElementById('app-header').style.display = 'flex';
+    if(loadState()){
+      const teamStr=TEAM_NAMES.join(', ');
+      const totalAnswered=HISTORY.length;
+      const totalPoints=SCORES.reduce((a,b)=>a+b,0);
+      document.getElementById('choice-sub').textContent='Найдена незавершённая викторина';
+      document.getElementById('choice-continue-desc').textContent=teamStr+' · '+totalAnswered+' ответов · '+totalPoints+' баллов';
+      showScreen('screen-choice');
+    } else {
+      renderSetup();
+    }
+  } else {
+    document.getElementById('lock-error').textContent = 'Неверный пароль. Доступ закрыт.';
+    document.getElementById('lock-password').value = '';
+    document.getElementById('lock-password').focus();
+  }
+}
+function startNewGame(){
+  document.getElementById('header-menu').classList.remove('open');
+  if(HISTORY.length>0 || SCORES.some(s=>s>0)){
+    archiveCurrentGame();
+    showToast('Предыдущая викторина сохранена в архив');
+  }
+  clearActive();
+  SCORES.fill(0);
+  HISTORY.length=0;
+  Object.keys(USED).forEach(k=>delete USED[k]);
+  TEAM_NAMES.splice(0,5,'Команда 1','Команда 2','Команда 3','Команда 4','Команда 5');
+  currentRound=0;
+  selectedBoardTeam=-1;
+  renderSetup();
+}
+function continueGame(){
+  document.getElementById('header-menu').classList.remove('open');
+  renderRounds();
+  showScreen('screen-rounds');
+  showToast('Игра восстановлена');
+}
+
+function renderSetup(){
+  const c = document.getElementById('setup-teams');
+  c.innerHTML = '';
+  TEAM_NAMES.forEach((name,i)=>{
+    c.innerHTML += '<div class="setup-team"><div class="num">'+(i+1)+'</div><input id="team-name-'+i+'" value="'+name+'" placeholder="Введите название" /></div>';
+  });
+  showScreen('screen-setup');
+}
+function finishSetup(){
+  TEAM_NAMES.forEach((_,i)=>{
+    const v = document.getElementById('team-name-'+i).value.trim();
+    if(v) TEAM_NAMES[i] = v;
+  });
+  document.getElementById('screen-setup').classList.remove('active');
+  saveState();
+  renderRounds();
+  showScreen('screen-rounds');
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen,.question-screen,.setup-screen,.choice-screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goToSetup(){ renderSetup(); }
+function goToRounds(){ renderRounds(); showScreen('screen-rounds'); }
+function goToBoard(){ selectedBoardTeam=-1; renderBoard(); showScreen('screen-board'); }
+
+function renderRounds(){
+  const g = document.getElementById('rounds-grid');
+  g.innerHTML = '';
+  ROUNDS.forEach((r,i)=>{
+    const total = r.questions.length;
+    const used = Object.keys(USED).filter(k=>k.startsWith(i+'-')).length;
+    const pct = total?Math.round(used/total*100):0;
+    g.innerHTML+='<div class="round-card" onclick="selectRound('+i+')"><div class="num">'+(i+1)+'</div><div class="label">Раунд «'+r.name+'»</div><div class="sub">'+total+' вопросов</div><div class="progress"><div class="progress-fill" style="width:'+pct+'%"></div></div></div>';
+  });
+}
+function selectRound(i){ currentRound=i; renderBoard(); showScreen('screen-board'); }
+
+function renderBoard(){
+  const r = ROUNDS[currentRound];
+  document.getElementById('board-title').textContent = 'Раунд '+(currentRound+1)+' — '+r.name;
+  const g = document.getElementById('board-grid');
+  g.innerHTML='';
+  g.innerHTML+='<div class="team-row-label">Отвечает команда</div>';
+  TEAM_NAMES.forEach((name,i)=>{
+    const active = selectedBoardTeam===i ? ' active' : '';
+    g.innerHTML+='<div class="team-cell'+active+'" onclick="selectBoardTeam('+i+')"><span class="team-num">'+(i+1)+'</span><span class="team-name-cell">'+name+'</span></div>';
+  });
+  r.categories.forEach((cat,ci)=>{
+    g.innerHTML+='<div class="cat-label">'+cat+'</div>';
+    for(let pos=0;pos<5;pos++){
+      const key=currentRound+'-'+ci+'-'+pos;
+      const used=USED[key];
+      const cost=COST_MAP[pos];
+      g.innerHTML+='<div class="q-cell '+(used?'used':'')+'" '+(used?'':'onclick="selectQuestion('+ci+','+pos+')"')+'>'+cost+'</div>';
+    }
+  });
+}
+function selectBoardTeam(i){
+  selectedBoardTeam = (selectedBoardTeam===i) ? -1 : i;
+  renderBoard();
+}
+
+function selectQuestion(catIdx,posIdx){
+  if(selectedBoardTeam<0){
+    showToast('Сначала выберите команду, которая отвечает');
+    document.querySelectorAll('.team-cell').forEach(c=>{c.style.boxShadow='0 0 16px rgba(212,168,67,.6)';});
+    setTimeout(()=>{document.querySelectorAll('.team-cell').forEach(c=>{c.style.boxShadow='';});},800);
+    return;
+  }
+  currentCatIdx=catIdx;
+  currentPosIdx=posIdx;
+  currentTeam=selectedBoardTeam;
+  const r=ROUNDS[currentRound];
+  const qIdx=currentCatIdx*5+currentPosIdx;
+  const q=r.questions[qIdx];
+  const cost=COST_MAP[currentPosIdx];
+  document.getElementById('q-badge').textContent=r.categories[currentCatIdx]+' · '+cost+' баллов · '+TEAM_NAMES[currentTeam];
+  let optsHtml=q.options.map((o,i)=>{
+    const letter=LETTERS[i];
+    const isCorrect=q.answer===letter;
+    return '<div class="q-option '+(isCorrect?'correct':'')+'"><span class="letter">'+letter+'</span>'+esc(o)+'</div>';
+  }).join('');
+  const explHtml=q.explanation.split('\n').filter(p=>p.trim()).map(p=>'<p>'+esc(p)+'</p>').join('');
+  document.getElementById('q-body').innerHTML=
+    '<div class="q-text">'+esc(q.question)+'</div>'+
+    '<div class="q-options">'+optsHtml+'</div>'+
+    '<div class="q-answer-label">Правильный ответ: '+esc(answerText(q))+'</div>'+
+    '<div class="q-explanation">'+explHtml+'</div>';
+  document.getElementById('q-actions').innerHTML=
+    '<button class="q-action-btn accept" onclick="answerQuestion(true)">✓ Засчитать ('+TEAM_NAMES[currentTeam]+', +'+cost+')</button>'+
+    '<button class="q-action-btn reject" onclick="answerQuestion(false)">✗ Не засчитать</button>';
+  showScreen('screen-question');
+}
+
+function answerQuestion(correct){
+  const r=ROUNDS[currentRound];
+  const cost=COST_MAP[currentPosIdx];
+  USED[currentRound+'-'+currentCatIdx+'-'+currentPosIdx]=true;
+  HISTORY.push({
+    team:currentTeam,
+    round:currentRound,
+    cat:currentCatIdx,
+    pos:currentPosIdx,
+    correct:correct,
+    points:correct?cost:0,
+    categoryName:r.categories[currentCatIdx],
+    cost:cost
+  });
+  SCORES[currentTeam]=SCORES[currentTeam]+(correct?cost:-cost);
+  selectedBoardTeam=-1;
+  saveState();
+  renderBoard();
+  showScreen('screen-board');
+}
+
+function toggleScore(){
+  renderScoreboard();
+  document.getElementById('scoreboard').classList.toggle('open');
+}
+function renderScoreboard(){
+  const c=document.getElementById('score-teams');
+  c.innerHTML='';
+  const sorted=TEAM_NAMES.map((name,i)=>({name,score:SCORES[i],idx:i})).sort((a,b)=>b.score-a.score);
+  const positions={};
+  sorted.forEach((t,i)=>positions[t.idx]=i+1);
+  TEAM_NAMES.forEach((name,i)=>{
+    const teamHistory=HISTORY.filter(h=>h.team===i);
+    const historyHtml=teamHistory.map((h,hi)=>{
+      const globalIdx=HISTORY.indexOf(h);
+      return '<span class="history-plaque '+(h.correct?'correct':'incorrect')+'" onclick="showReview('+globalIdx+')">'+h.categoryName.substring(0,12)+' '+h.cost+'</span>';
+    }).join('');
+    c.innerHTML+='<div class="score-team"><div class="team-position">#'+positions[i]+'</div><div class="team-name">'+name+'</div><div class="team-score" id="score-'+i+'">'+SCORES[i]+'</div><div class="team-history">'+historyHtml+'</div></div>';
+  });
+}
+
+function showReview(idx){
+  const h=HISTORY[idx];
+  const r=ROUNDS[h.round];
+  const qIdx=h.cat*5+h.pos;
+  const q=r.questions[qIdx];
+  const cost=COST_MAP[h.pos];
+  const b=document.getElementById('review-body');
+  let optsHtml=q.options.map((o,i)=>{
+    const letter=LETTERS[i];
+    const isCorrect=q.answer===letter;
+    return '<div class="review-option '+(isCorrect?'correct':'')+'"><span class="letter">'+letter+'</span>'+esc(o)+'</div>';
+  }).join('');
+  const explHtml=q.explanation.split('\n').filter(p=>p.trim()).map(p=>'<p>'+esc(p)+'</p>').join('');
+  b.innerHTML=
+    '<div class="review-badge">'+esc(r.categories[h.cat])+' · '+cost+' баллов</div>'+
+    '<div class="review-team">'+esc(TEAM_NAMES[h.team])+' — Раунд '+(h.round+1)+'</div>'+
+    '<div class="review-result '+(h.correct?'correct':'incorrect')+'">'+(h.correct?'✓ Засчитано +'+cost:'✗ Не засчитано')+'</div>'+
+    '<div class="review-q">'+esc(q.question)+'</div>'+
+    '<div class="review-options">'+optsHtml+'</div>'+
+    '<div class="review-answer">Правильный ответ: '+esc(answerText(q))+'</div>'+
+    '<div class="review-expl">'+explHtml+'</div>';
+  document.getElementById('review-overlay').classList.add('open');
+}
+function closeReview(){ document.getElementById('review-overlay').classList.remove('open'); }
+
+init();
+</script>
+</body>
+</html>
