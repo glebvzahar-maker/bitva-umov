@@ -14,6 +14,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 DATA = os.path.join(HERE, "quiz_data.json")
 TPL = os.path.join(HERE, "template.html")
+TOKENS = os.path.join(ROOT, "design-tokens.css")
 OUT = os.path.join(ROOT, "Викторина_Помощник.html")
 
 
@@ -28,6 +29,11 @@ def main():
     if "__ROUNDS_JSON__" not in tpl:
         print("FAIL: в шаблоне нет плейсхолдера __ROUNDS_JSON__")
         return 2
+
+    # единый слой токенов встраиваем внутрь — викторина остаётся одним файлом
+    if "__DESIGN_TOKENS__" in tpl:
+        tokens = open(TOKENS, encoding="utf-8").read() if os.path.exists(TOKENS) else ""
+        tpl = tpl.replace("__DESIGN_TOKENS__", tokens)
 
     payload = json.dumps(data["rounds"], ensure_ascii=False, separators=(",", ":"))
     # страховка от literal newlines и прочих управляющих символов внутри строк

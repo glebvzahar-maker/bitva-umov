@@ -196,6 +196,25 @@ check("медиазапрос для мобильных", html.includes("@media(
 check("сетка перестраивается в 5 колонок", html.includes("grid-template-columns:repeat(5,1fr)"));
 check("min-width:0 на ячейках", html.includes(".q-cell{min-width:0"));
 
+// ── 16. Зрительский режим ──────────────────────────────────────────────
+console.log("\n16. Зрительский режим");
+check("есть разметка зрительского экрана", !!$("audience-screen"));
+check("в скрипте есть определение режима", html.includes("view=audience"));
+check("есть функция отрисовки", html.includes("function renderAudience()"));
+check("есть функция трансляции", html.includes("function broadcast()"));
+check("трансляция вызывается после ответа",
+  html.includes("broadcast();\n  updateUndoButton();"));
+check("состояние пишется в quiz_live", html.includes("quiz_live"));
+
+// ── 17. Единые токены ───────────────────────────────────────────────────
+console.log("\n17. Единые токены с лендингом");
+check("подключены Archivo и Big Shoulders", html.includes("Big+Shoulders+Display"));
+check("Playfair на 400-700, не 900", !html.includes("Playfair+Display:wght@700;900"));
+check("золото единое #d8b787", html.includes("--gold:#d8b787"));
+check("фон единый #070b12", html.includes("--ink:#070b12"));
+check("числа на Big Shoulders", html.includes("font-family:var(--num)"));
+check("токены встроены в файл", html.includes("--r-pill:999px"));
+
 // ── Итог ────────────────────────────────────────────────────────────────
 console.log("\n=== Результат ===");
 if (errors.length) {
