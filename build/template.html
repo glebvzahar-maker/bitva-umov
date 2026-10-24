@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Викторина — Битва умов</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,23 +10,29 @@
 <style>
 :root{
   --bg:#0a0e17;--card:#141a2a;--gold:#d4a843;--gold2:#f0d68a;
-  --text:#e8ecf2;--muted:#6b7a94;--green:#3ecf7a;--red:#e05555;
+  --text:#e8ecf2;--muted:#8494ae;--muted-dim:#6b7a94;
+  --green:#3ecf7a;--green-fill:#2e9c5f;--red:#ff7b7b;--red-fill:#c0392f;
+  --tap:44px;--radius:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px;}
+button{font-family:inherit;}
+.num,.team-score,.q-cell,.round-card .num{font-variant-numeric:tabular-nums;}
+body,p,div,span,li,td,th,h1,h2,h3,strong,b{hyphens:auto;overflow-wrap:break-word;}
 html,body{height:100%;overflow:hidden;}
 body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
 
 .header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(20,26,42,.95);border-bottom:1px solid rgba(212,168,67,.15);flex-shrink:0;z-index:10;}
 .header-left{display:flex;align-items:center;gap:6px;position:relative;}
 .header h1{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--gold);}
-.header-arrow{background:var(--card);border:1px solid rgba(212,168,67,.3);color:var(--gold);font-size:16px;font-weight:700;width:28px;height:28px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+.header-arrow{background:var(--card);border:1px solid rgba(212,168,67,.3);color:var(--gold);font-size:18px;font-weight:700;width:var(--tap);height:var(--tap);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
 .header-arrow:active{transform:scale(.9);}
 .header-menu{display:none;position:absolute;top:100%;left:0;background:var(--card);border:1px solid rgba(212,168,67,.25);border-radius:8px;min-width:220px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.5);overflow:hidden;margin-top:4px;}
 .header-menu.open{display:block;}
-.header-menu-item{padding:12px 16px;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;transition:background .2s;border-bottom:1px solid rgba(255,255,255,.04);}
+.header-menu-item{padding:14px 16px;min-height:var(--tap);display:flex;align-items:center;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;transition:background .2s;border-bottom:1px solid rgba(255,255,255,.04);}
 .header-menu-item:last-child{border-bottom:none;}
 .header-menu-item:active{background:rgba(212,168,67,.1);}
-.header .score-toggle{background:var(--gold);color:var(--bg);border:none;padding:8px 18px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;}
+.header .score-toggle{background:var(--gold);color:var(--bg);border:none;padding:11px 18px;min-height:var(--tap);border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;}
 .header .score-toggle:active{transform:scale(.95);}
 
 .screen{display:none;flex:1;overflow-y:auto;flex-direction:column;}
@@ -40,7 +46,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .lock-input-wrap{display:flex;align-items:center;gap:8px;width:100%;max-width:300px;}
 .lock-input{flex:1;background:var(--card);border:1px solid rgba(212,168,67,.3);border-radius:8px;color:var(--text);font-size:18px;font-weight:600;padding:12px 16px;text-align:center;font-family:'Inter',sans-serif;letter-spacing:4px;outline:none;}
 .lock-input:focus{border-color:var(--gold);}
-.lock-btn{background:var(--gold);color:var(--bg);border:none;border-radius:8px;padding:12px 20px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;}
+.lock-btn{background:var(--gold);color:var(--bg);border:none;border-radius:8px;padding:12px 22px;min-height:var(--tap);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;}
 .lock-btn:active{transform:scale(.96);}
 .lock-error{font-size:13px;color:var(--red);text-align:center;min-height:20px;}
 
@@ -54,7 +60,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .round-card .progress-fill{height:100%;background:var(--gold);transition:width .3s;width:0%;}
 
 .board-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;flex-shrink:0;}
-.board-header .back-btn{background:none;border:none;color:var(--gold);font-size:22px;cursor:pointer;padding:4px 8px;}
+.board-header .back-btn{background:none;border:none;color:var(--gold);font-size:24px;cursor:pointer;padding:10px 12px;min-width:var(--tap);min-height:var(--tap);display:flex;align-items:center;justify-content:center;}
 .board-header h2{font-family:'Playfair Display',serif;font-size:17px;color:var(--gold);text-align:center;}
 
 .board-grid{display:grid;grid-template-columns:1.8fr repeat(5,1fr);gap:5px;padding:8px 12px;flex:1;align-content:stretch;}
@@ -64,23 +70,17 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .team-cell .team-name-cell{font-size:10px;font-family:'Inter',sans-serif;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
 .team-cell:active{transform:scale(.93);}
 .team-cell.active{border-color:var(--gold);color:var(--gold);background:rgba(212,168,67,.12);box-shadow:0 0 12px rgba(212,168,67,.25);}
-.q-cell.no-team{opacity:.45;cursor:not-allowed;}
 .cat-label{background:var(--card);border:1px solid rgba(212,168,67,.2);border-radius:6px;padding:10px 8px;text-align:center;font-size:15px;font-weight:700;color:var(--gold);display:flex;align-items:center;justify-content:center;line-height:1.3;}
 .q-cell{background:linear-gradient(135deg,#1a2240,#162038);border:1px solid rgba(212,168,67,.18);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--gold2);cursor:pointer;transition:all .25s;min-height:54px;position:relative;}
 .q-cell:active{transform:scale(.93);}
-.q-cell.used{background:rgba(20,26,42,.4);border-color:rgba(80,80,80,.2);color:rgba(80,80,80,.35);cursor:default;pointer-events:none;text-decoration:line-through;}
-.q-cell.used::after{content:"";position:absolute;inset:0;background:rgba(10,14,23,.6);border-radius:6px;}
+.q-cell.used{background:#10151f;border-color:rgba(132,148,174,.28);color:#7b8aa4;cursor:default;pointer-events:none;}
+.q-cell.used::after{content:"✕";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(132,148,174,.55);font-size:20px;}
 
-.team-select-grid{display:flex;flex-direction:column;gap:10px;padding:20px 16px;max-width:600px;margin:0 auto;width:100%;}
-.team-card{background:var(--card);border:1px solid rgba(212,168,67,.2);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;}
-.team-card:active{transform:scale(.97);border-color:var(--gold);}
-.team-card .team-card-name{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--gold);margin-bottom:4px;}
-.team-card .team-card-score{font-size:13px;color:var(--muted);}
 
-.question-screen{display:none;flex-direction:column;height:100dvh;position:relative;}
+.question-screen{display:none;flex-direction:column;height:100vh;height:100dvh;position:relative;}
 .question-screen.active{display:flex;}
 .q-top-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(20,26,42,.95);border-bottom:1px solid rgba(212,168,67,.15);flex-shrink:0;}
-.q-top-bar .back-btn{background:none;border:none;color:var(--gold);font-size:20px;cursor:pointer;}
+.q-top-bar .back-btn{background:none;border:none;color:var(--gold);font-size:24px;cursor:pointer;padding:8px 12px;min-width:var(--tap);min-height:var(--tap);display:flex;align-items:center;justify-content:center;}
 .q-top-bar .q-badge{background:var(--gold);color:var(--bg);font-weight:700;padding:4px 12px;border-radius:16px;font-size:11px;}
 .q-body{flex:1;overflow-y:auto;padding:16px;padding-bottom:90px;display:flex;flex-direction:column;gap:14px;}
 .q-text{font-size:16px;font-weight:600;line-height:1.5;background:var(--card);border-radius:10px;padding:16px;border-left:3px solid var(--gold);}
@@ -98,20 +98,20 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .q-action-btn{flex:1;padding:20px 10px;border:none;border-radius:12px;font-size:18px;font-weight:700;cursor:pointer;transition:all .2s;}
 .q-action-btn:active{transform:scale(.96);}
 .q-action-btn.accept{background:var(--green);color:var(--bg);}
-.q-action-btn.reject{background:var(--red);color:#fff;}
+.q-action-btn.reject{background:var(--red-fill);color:#fff;}
 
 .scoreboard{display:none;flex-direction:column;position:fixed;inset:0;z-index:100;background:rgba(10,14,23,.97);}
 .scoreboard.open{display:flex;}
 .score-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(212,168,67,.15);flex-shrink:0;}
 .score-header h2{font-family:'Playfair Display',serif;color:var(--gold);font-size:18px;}
-.score-header .close-btn{background:none;border:none;color:var(--muted);font-size:26px;cursor:pointer;}
+.score-header .close-btn{background:none;border:none;color:var(--muted);font-size:28px;cursor:pointer;min-width:var(--tap);min-height:var(--tap);display:flex;align-items:center;justify-content:center;}
 .score-teams{display:flex;flex-direction:column;gap:10px;padding:16px;flex:1;overflow-y:auto;}
 .score-team{background:var(--card);border-radius:10px;padding:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .team-position{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:var(--gold);width:50px;text-align:center;flex-shrink:0;}
 .team-name{font-weight:700;font-size:14px;width:90px;flex-shrink:0;color:var(--gold);}
 .team-score{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;width:70px;text-align:center;flex-shrink:0;}
 .team-history{display:flex;gap:4px;flex-wrap:wrap;flex:1;}
-.history-plaque{display:inline-block;padding:3px 6px;border-radius:4px;font-size:9px;font-weight:600;line-height:1;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;transition:all .2s;}
+.history-plaque{display:inline-flex;align-items:center;justify-content:center;min-height:28px;padding:5px 9px;border-radius:6px;font-size:11px;font-weight:700;line-height:1.2;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;transition:all .2s;}
 .history-plaque:active{transform:scale(.92);}
 .history-plaque.correct{background:rgba(62,207,122,.15);color:var(--green);}
 .history-plaque.incorrect{background:rgba(224,85,85,.15);color:var(--red);}
@@ -131,7 +131,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .setup-title{font-family:'Playfair Display',serif;font-size:24px;color:var(--gold);text-align:center;margin-bottom:10px;}
 .setup-team{display:flex;align-items:center;gap:10px;width:100%;max-width:400px;background:var(--card);border-radius:10px;padding:12px 16px;}
 .setup-team .num{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:var(--gold);width:30px;text-align:center;flex-shrink:0;}
-.setup-team input{flex:1;background:none;border:none;border-bottom:1px solid rgba(212,168,67,.3);color:var(--text);font-size:15px;font-weight:600;padding:6px 0;font-family:'Inter',sans-serif;outline:none;}
+.setup-team input{flex:1;min-width:0;background:none;border:none;border-bottom:1px solid rgba(212,168,67,.3);color:var(--text);font-size:16px;font-weight:600;padding:12px 0;min-height:var(--tap);font-family:'Inter',sans-serif;outline:none;}
 .setup-team input:focus{border-bottom-color:var(--gold);}
 .setup-team input::placeholder{color:var(--muted);font-weight:400;}
 .setup-start-btn{margin-top:16px;background:var(--gold);color:var(--bg);border:none;border-radius:10px;padding:14px 40px;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;}
@@ -141,7 +141,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .review-overlay.open{display:flex;}
 .review-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(212,168,67,.15);flex-shrink:0;}
 .review-header h2{font-family:'Playfair Display',serif;color:var(--gold);font-size:16px;}
-.review-header .close-btn{background:none;border:none;color:var(--muted);font-size:26px;cursor:pointer;}
+.review-header .close-btn{background:none;border:none;color:var(--muted);font-size:28px;cursor:pointer;min-width:var(--tap);min-height:var(--tap);display:flex;align-items:center;justify-content:center;}
 .review-body{padding:20px 16px;display:flex;flex-direction:column;gap:16px;}
 .review-badge{background:var(--gold);color:var(--bg);font-weight:700;padding:4px 12px;border-radius:16px;font-size:11px;align-self:flex-start;}
 .review-team{font-size:14px;color:var(--muted);font-weight:600;}
@@ -161,7 +161,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .toast.show{opacity:1;}
 
 .rounds-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;flex-shrink:0;}
-.rounds-header .back-btn{background:none;border:none;color:var(--gold);font-size:22px;cursor:pointer;padding:4px 8px;}
+.rounds-header .back-btn{background:none;border:none;color:var(--gold);font-size:24px;cursor:pointer;padding:10px 12px;min-width:var(--tap);min-height:var(--tap);display:flex;align-items:center;justify-content:center;}
 .rounds-header h2{font-family:'Playfair Display',serif;font-size:17px;color:var(--gold);text-align:center;flex:1;}
 .rounds-header .archive-btn{background:var(--card);border:1px solid rgba(212,168,67,.3);color:var(--gold);font-size:13px;font-weight:600;padding:8px 14px;border-radius:8px;cursor:pointer;transition:all .2s;}
 .rounds-header .archive-btn:active{transform:scale(.95);}
@@ -170,26 +170,104 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .archive-overlay.open{display:flex;}
 .archive-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(212,168,67,.15);flex-shrink:0;}
 .archive-header h2{font-family:'Playfair Display',serif;color:var(--gold);font-size:18px;}
-.archive-header .close-btn{background:none;border:none;color:var(--muted);font-size:26px;cursor:pointer;}
+.archive-header .close-btn{background:none;border:none;color:var(--muted);font-size:28px;cursor:pointer;min-width:var(--tap);min-height:var(--tap);display:flex;align-items:center;justify-content:center;}
 .archive-list{padding:16px;display:flex;flex-direction:column;gap:12px;flex:1;overflow-y:auto;}
 .archive-item{background:var(--card);border:1px solid rgba(212,168,67,.15);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px;}
 .archive-item-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .archive-item-date{font-size:13px;color:var(--muted);}
 .archive-item-teams{font-size:12px;color:var(--muted);line-height:1.4;}
 .archive-item-actions{display:flex;gap:8px;}
-.archive-item-actions button{padding:6px 14px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
+.archive-item-actions button{padding:10px 16px;min-height:var(--tap);border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
 .archive-item-actions button:active{transform:scale(.95);}
 .archive-resume{background:var(--green);color:var(--bg);}
 .archive-view{background:var(--gold);color:var(--bg);}
-.archive-delete{background:var(--red);color:#fff;}
+.archive-delete{background:var(--red-fill);color:#fff;}
 .archive-empty{text-align:center;color:var(--muted);padding:40px 20px;font-size:14px;}
 
-@media(max-width:600px){
+/* ── Отмена ответа ───────────────────────────────────────────────────── */
+.undo-bar{display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:10px 16px;background:rgba(20,26,42,.95);border-top:1px solid rgba(212,168,67,.2);
+  flex-shrink:0;}
+.undo-btn{background:transparent;border:1px solid rgba(212,168,67,.4);color:var(--gold);
+  border-radius:8px;padding:10px 20px;min-height:var(--tap);font-size:14px;font-weight:700;
+  cursor:pointer;transition:all .2s;}
+.undo-btn:active{transform:scale(.96);background:rgba(212,168,67,.1);}
+
+/* ── Финальный экран ─────────────────────────────────────────────────── */
+.final-screen{display:none;flex-direction:column;position:fixed;inset:0;z-index:150;
+  background:radial-gradient(ellipse at 50% 0%,#1a2440 0%,var(--bg) 60%);overflow-y:auto;}
+.final-screen.open{display:flex;}
+.final-inner{max-width:760px;margin:0 auto;padding:28px 16px 40px;width:100%;}
+.final-title{font-family:'Playfair Display',serif;font-size:30px;font-weight:900;
+  color:var(--gold);text-align:center;margin-bottom:4px;}
+.final-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:26px;}
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;margin-bottom:30px;}
+.podium-place{flex:1;max-width:190px;text-align:center;}
+.podium-bar{border-radius:10px 10px 0 0;display:flex;align-items:flex-start;
+  justify-content:center;padding:14px 8px;font-family:'Playfair Display',serif;
+  font-weight:900;font-size:30px;color:var(--bg);}
+.podium-place.p1 .podium-bar{height:150px;background:linear-gradient(180deg,#f0d68a,#d4a843);}
+.podium-place.p2 .podium-bar{height:112px;background:linear-gradient(180deg,#dfe6f0,#aebbcd);}
+.podium-place.p3 .podium-bar{height:86px;background:linear-gradient(180deg,#e0a87c,#b5734a);}
+.podium-name{font-weight:700;font-size:14px;margin-top:8px;color:var(--text);}
+.podium-score{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--gold);}
+.final-table{background:var(--card);border:1px solid rgba(212,168,67,.15);border-radius:12px;
+  overflow:hidden;margin-bottom:22px;}
+.final-row{display:flex;align-items:center;gap:12px;padding:13px 16px;
+  border-bottom:1px solid rgba(255,255,255,.05);}
+.final-row:last-child{border-bottom:none;}
+.final-row .fr-pos{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;
+  color:var(--gold);width:34px;text-align:center;flex-shrink:0;}
+.final-row .fr-name{flex:1;font-weight:700;font-size:14px;min-width:0;}
+.final-row .fr-stats{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;}
+.final-row .fr-score{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;
+  width:66px;text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums;}
+.final-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.final-btn{padding:12px 22px;min-height:var(--tap);border:none;border-radius:10px;font-size:14px;
+  font-weight:700;cursor:pointer;transition:all .2s;}
+.final-btn:active{transform:scale(.96);}
+.final-btn.primary{background:var(--gold);color:var(--bg);}
+.final-btn.ghost{background:var(--card);border:1px solid rgba(212,168,67,.3);color:var(--gold);}
+
+/* ── Печать результатов ──────────────────────────────────────────────── */
+@media print{
+  html,body{overflow:visible;height:auto;background:#fff;color:#000;}
+  .header,.screen,.question-screen,.scoreboard,.archive-overlay,.review-overlay,
+  .pwd-overlay,.toast,.undo-bar,.final-actions{display:none !important;}
+  .final-screen{display:block !important;position:static;background:#fff;color:#000;}
+  .final-inner{max-width:none;padding:0;}
+  .final-title,.final-row .fr-score,.final-row .fr-pos{color:#000;}
+  .final-sub,.final-row .fr-stats{color:#333;}
+  .podium-bar{color:#000 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .final-table{background:#fff;border-color:#999;}
+  .final-row{border-color:#ccc;}
+}
+
+@media(max-width:760px){
   .rounds-grid{grid-template-columns:1fr;gap:14px;padding:16px 12px;}
   .round-card{padding:36px 16px;}
   .round-card .num{font-size:64px;}
   .round-card .label{font-size:20px;}
   .round-card .sub{font-size:14px;}
+  /* табло: категория — своей строкой, иначе колонка 500 не помещается */
+  .board-grid{grid-template-columns:repeat(5,1fr);gap:4px;padding:6px 8px;}
+  .board-grid .team-row-label{grid-column:1/-1;font-size:11px;padding:6px;}
+  .board-grid .cat-label{grid-column:1/-1;min-width:0;font-size:12px;
+    line-height:1.2;padding:6px 8px;hyphens:auto;overflow-wrap:anywhere;}
+  .team-cell{min-width:0;min-height:52px;padding:6px 2px;}
+  .team-cell .team-num{font-size:15px;}
+  .team-cell .team-name-cell{white-space:normal;overflow-wrap:anywhere;
+    font-size:11px;line-height:1.15;max-width:100%;}
+  .q-cell{min-width:0;min-height:52px;font-size:18px;}
+}
+@media(max-width:420px){
+  .board-grid{gap:3px;padding:4px 6px;}
+  .q-cell{min-height:46px;font-size:16px;}
+  .team-cell{min-height:48px;}
+  .team-cell .team-name-cell{font-size:10px;}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important;}
 }
 @media(min-width:768px){
   .board-grid{gap:6px;padding:12px 20px;}
@@ -197,8 +275,6 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
   .cat-label{font-size:16px;}
   .q-text{font-size:18px;}
   .q-explanation{font-size:14px;}
-  .team-card{padding:28px;}
-  .team-card .team-card-name{font-size:24px;}
 }
 
 .pwd-overlay{display:none;position:fixed;inset:0;z-index:400;background:rgba(10,14,23,.85);align-items:center;justify-content:center;}
@@ -218,7 +294,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </style>
 </head>
 <body>
-<div class="header" id="app-header" style="display:none"><div class="header-left"><h1>Битва умов</h1><button class="header-arrow" onclick="toggleHeaderMenu(event)">▾</button><div class="header-menu" id="header-menu"><div class="header-menu-item" onclick="startNewGame()">Новая викторина</div><div class="header-menu-item" onclick="openArchive()">Архив</div></div></div><button class="score-toggle" onclick="toggleScore()">Результат Викторины</button></div>
+<div class="header" id="app-header" style="display:none"><div class="header-left"><h1>Битва умов</h1><button class="header-arrow" onclick="toggleHeaderMenu(event)" aria-label="Меню" aria-haspopup="menu" aria-expanded="false">▾</button><div class="header-menu" id="header-menu" role="menu"><div class="header-menu-item" onclick="startNewGame()">Новая викторина</div><div class="header-menu-item" onclick="openArchive()">Архив</div></div></div><button class="score-toggle" onclick="toggleScore()">Результат Викторины</button></div>
 
 <div class="lock-screen active" id="screen-lock">
   <div class="lock-icon">🔒</div>
@@ -229,6 +305,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
     <button class="lock-btn" onclick="checkPassword()">→</button>
   </div>
   <div class="lock-error" id="lock-error"></div>
+  <button class="archive-btn" onclick="openArchive()" style="background:var(--card);border:1px solid rgba(212,168,67,.3);color:var(--gold);font-size:13px;font-weight:600;padding:11px 18px;min-height:var(--tap);border-radius:8px;cursor:pointer;">📁 Архив викторин</button>
 </div>
 
 <div class="choice-screen" id="screen-choice">
@@ -246,14 +323,14 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </div>
 
 <div class="screen" id="screen-rounds"><div class="rounds-header"><button class="back-btn" onclick="goToSetup()">✎</button><h2>Выберите раунд</h2><button class="archive-btn" onclick="openArchive()">📁 Архив</button></div><div class="rounds-grid" id="rounds-grid"></div></div>
-<div class="screen" id="screen-board"><div class="board-header"><button class="back-btn" onclick="goToRounds()">←</button><h2 id="board-title"></h2><div></div></div><div class="board-grid" id="board-grid"></div></div>
-<div class="screen" id="screen-team-select"><div class="board-header"><button class="back-btn" onclick="goToBoard()">←</button><h2>Какая команда отвечает?</h2><div></div></div><div class="team-select-grid" id="team-select-grid"></div></div>
+<div class="screen" id="screen-board"><div class="board-header"><button class="back-btn" onclick="goToRounds()" aria-label="Назад к раундам">←</button><h2 id="board-title"></h2><div></div></div><div class="board-grid" id="board-grid" role="grid" aria-label="Табло вопросов"></div><div class="undo-bar"><button class="undo-btn" id="undo-btn" onclick="undoLastAnswer()" disabled>↩ Отменить последний ответ</button></div></div>
 <div class="question-screen" id="screen-question"><div class="q-top-bar"><button class="back-btn" onclick="goToBoard()">←</button><div class="q-badge" id="q-badge"></div><div></div></div><div class="q-body" id="q-body"></div><div class="q-actions" id="q-actions"></div></div>
-<div class="scoreboard" id="scoreboard"><div class="score-header"><h2>Результат Викторины</h2><button class="close-btn" onclick="toggleScore()">×</button></div><div class="score-teams" id="score-teams"></div></div>
-<div class="review-overlay" id="review-overlay"><div class="review-header"><h2>Просмотр вопроса</h2><button class="close-btn" onclick="closeReview()">×</button></div><div class="review-body" id="review-body"></div></div>
-<div class="archive-overlay" id="archive-overlay"><div class="archive-header"><h2>Архив викторин</h2><button class="close-btn" onclick="closeArchive()">×</button></div><div class="archive-list" id="archive-list"></div></div>
-<div class="toast" id="toast"></div>
-<div class="pwd-overlay" id="pwd-overlay"><div class="pwd-modal"><div class="pwd-modal-title" id="pwd-modal-title">Введите пароль</div><input type="password" class="pwd-modal-input" id="pwd-modal-input" maxlength="10" placeholder="····" inputmode="numeric"><div class="pwd-modal-error" id="pwd-modal-error"></div><div class="pwd-modal-actions"><button class="pwd-modal-cancel" onclick="closePwdModal()">Отмена</button><button class="pwd-modal-ok" onclick="submitPwdModal()">OK</button></div></div></div>
+<div class="scoreboard" id="scoreboard" role="dialog" aria-modal="true" aria-label="Результаты викторины"><div class="score-header"><h2>Результат Викторины</h2><div style="display:flex;gap:8px;align-items:center;"><button class="archive-btn" onclick="showFinal()" style="min-height:var(--tap);">Итоги</button><button class="close-btn" onclick="toggleScore()" aria-label="Закрыть">×</button></div></div><div class="score-teams" id="score-teams"></div></div>
+<div class="review-overlay" id="review-overlay" role="dialog" aria-modal="true" aria-label="Просмотр вопроса"><div class="review-header"><h2>Просмотр вопроса</h2><button class="close-btn" onclick="closeReview()">×</button></div><div class="review-body" id="review-body"></div></div>
+<div class="archive-overlay" id="archive-overlay" role="dialog" aria-modal="true" aria-label="Архив викторин"><div class="archive-header"><h2>Архив викторин</h2><button class="close-btn" onclick="closeArchive()">×</button></div><div class="archive-list" id="archive-list"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="final-screen" id="final-screen" role="dialog" aria-modal="true" aria-labelledby="final-title"><div class="final-inner"><div class="final-title" id="final-title">Итоги викторины</div><div class="final-sub" id="final-sub"></div><div class="podium" id="final-podium"></div><div class="final-table" id="final-table"></div><div class="final-actions"><button class="final-btn primary" onclick="exportCSV()">⬇ Скачать CSV</button><button class="final-btn ghost" onclick="window.print()">🖨 Печать / PDF</button><button class="final-btn ghost" onclick="closeFinal()">Закрыть</button></div></div></div>
+<div class="pwd-overlay" id="pwd-overlay" role="dialog" aria-modal="true" aria-labelledby="pwd-modal-title"><div class="pwd-modal"><div class="pwd-modal-title" id="pwd-modal-title">Введите пароль</div><input type="password" class="pwd-modal-input" id="pwd-modal-input" maxlength="10" placeholder="····" inputmode="numeric"><div class="pwd-modal-error" id="pwd-modal-error"></div><div class="pwd-modal-actions"><button class="pwd-modal-cancel" onclick="closePwdModal()">Отмена</button><button class="pwd-modal-ok" onclick="submitPwdModal()">OK</button></div></div></div>
 
 <script>
 const ROUNDS = __ROUNDS_JSON__;
@@ -263,6 +340,7 @@ const HISTORY = [];
 const USED = {};
 const PASSWORD = '1234';
 let isAuthenticated = false;
+let lockPassed = false;
 let currentRound = 0;
 let selectedBoardTeam = -1;
 let currentTeam = -1;
@@ -289,24 +367,41 @@ function showToast(msg){
   t._timer=setTimeout(()=>t.classList.remove('show'),2200);
 }
 
+let storageBroken=false;
+function storageWarn(){
+  storageBroken=true;
+  showToast('Внимание: сохранение недоступно — данные не переживут перезагрузку');
+}
 function saveState(){
   try{
-    const state={scores:SCORES.slice(),teamNames:TEAM_NAMES.slice(),history:HISTORY.slice(),used:USED,round:currentRound};
+    const state={scores:SCORES.slice(),teamNames:TEAM_NAMES.slice(),history:HISTORY.slice(),
+                 used:USED,round:currentRound,ts:Date.now()};
     localStorage.setItem('quiz_active',JSON.stringify(state));
-  }catch(e){}
+    storageBroken=false;
+  }catch(e){ storageWarn(); }
 }
 function loadState(){
   try{
     const s=localStorage.getItem('quiz_active');
     if(!s) return false;
-    const state=JSON.parse(s);
+    let state;
+    try{ state=JSON.parse(s); }
+    catch(e){
+      localStorage.setItem('quiz_active_broken',s);
+      localStorage.removeItem('quiz_active');
+      showToast('Сохранённая игра повреждена — начните новую');
+      return false;
+    }
+    if(!Array.isArray(state.scores)||!Array.isArray(state.teamNames)||!Array.isArray(state.history))
+      return false;
     SCORES.splice(0,5,...state.scores);
     TEAM_NAMES.splice(0,5,...state.teamNames);
     HISTORY.length=0; HISTORY.push(...state.history);
-    Object.assign(USED,state.used);
+    Object.keys(USED).forEach(k=>delete USED[k]);
+    Object.assign(USED,state.used||{});
     currentRound=state.round||0;
     return true;
-  }catch(e){return false;}
+  }catch(e){ storageWarn(); return false; }
 }
 function clearActive(){ try{localStorage.removeItem('quiz_active');}catch(e){} }
 
@@ -321,7 +416,8 @@ function archiveCurrentGame(){
     teamNames:TEAM_NAMES.slice(),
     scores:SCORES.slice(),
     history:HISTORY.slice(),
-    used:{...USED}
+    used:{...USED},
+    round:currentRound
   });
   saveArchives(archives);
 }
@@ -343,7 +439,7 @@ function renderArchiveList(){
   }).join('');
 }
 function resumeArchive(i){
-  if(HISTORY.length>0 || SCORES.some(s=>s>0)){
+  if(HISTORY.length>0 || SCORES.some(s=>s!==0)){
     archiveCurrentGame();
   }
   const archives=getArchives();
@@ -351,11 +447,17 @@ function resumeArchive(i){
   SCORES.splice(0,5,...a.scores);
   TEAM_NAMES.splice(0,5,...a.teamNames);
   HISTORY.length=0; HISTORY.push(...a.history);
-  Object.assign(USED,a.used);
-  currentRound=0;
+  Object.keys(USED).forEach(k=>delete USED[k]);
+  Object.assign(USED,a.used||{});
+  currentRound=a.round||0;
   selectedBoardTeam=-1;
   closeArchive();
+  if(lockPassed){
+    document.getElementById('app-header').style.display='flex';
+    document.getElementById('screen-lock').classList.remove('active');
+  }
   saveState();
+  updateUndoButton();
   renderRounds();
   showScreen('screen-rounds');
   showToast('Игра восстановлена');
@@ -423,6 +525,13 @@ function init(){
   document.getElementById('lock-password').addEventListener('keydown', function(e){
     if(e.key === 'Enter') checkPassword();
   });
+  // предупреждение об игре в другой вкладке
+  window.addEventListener('storage', function(e){
+    if(e.key==='quiz_active' && isAuthenticated){
+      showToast('Игра открыта в другой вкладке — возможен рассинхрон');
+    }
+  });
+  updateUndoButton();
   document.getElementById('pwd-modal-input').addEventListener('keydown', function(e){
     if(e.key === 'Enter') submitPwdModal();
     if(e.key === 'Escape') closePwdModal();
@@ -433,6 +542,14 @@ function init(){
     if(menu && !menu.contains(e.target) && e.target!==arrow){
       menu.classList.remove('open');
     }
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key!=='Escape') return;
+    if(document.getElementById('final-screen').classList.contains('open')){ closeFinal(); return; }
+    if(document.getElementById('archive-overlay').classList.contains('open')){ closeArchive(); return; }
+    if(document.getElementById('review-overlay').classList.contains('open')){ closeReview(); return; }
+    if(document.getElementById('scoreboard').classList.contains('open')){ toggleScore(); return; }
+    if(document.getElementById('pwd-overlay').classList.contains('open')){ closePwdModal(); return; }
   });
 }
 function toggleHeaderMenu(e){
@@ -447,6 +564,7 @@ function checkPassword(){
     document.getElementById('lock-error').textContent = '';
     document.getElementById('screen-lock').classList.remove('active');
     document.getElementById('app-header').style.display = 'flex';
+    lockPassed=true;
     if(loadState()){
       const teamStr=TEAM_NAMES.join(', ');
       const totalAnswered=HISTORY.length;
@@ -489,7 +607,9 @@ function renderSetup(){
   const c = document.getElementById('setup-teams');
   c.innerHTML = '';
   TEAM_NAMES.forEach((name,i)=>{
-    c.innerHTML += '<div class="setup-team"><div class="num">'+(i+1)+'</div><input id="team-name-'+i+'" value="'+name+'" placeholder="Введите название" /></div>';
+    c.innerHTML += '<div class="setup-team"><div class="num">'+(i+1)+'</div>'
+      +'<input id="team-name-'+i+'" value="'+esc(name)+'" maxlength="40" '
+      +'placeholder="Введите название" aria-label="Название команды '+(i+1)+'" /></div>';
   });
   showScreen('screen-setup');
 }
@@ -498,14 +618,20 @@ function finishSetup(){
     const v = document.getElementById('team-name-'+i).value.trim();
     if(v) TEAM_NAMES[i] = v;
   });
-  document.getElementById('screen-setup').classList.remove('active');
+  SCORES.fill(0);
+  HISTORY.length=0;
+  Object.keys(USED).forEach(k=>delete USED[k]);
+  currentRound=0;
+  selectedBoardTeam=-1;
+  updateUndoButton();
   saveState();
   renderRounds();
   showScreen('screen-rounds');
 }
 
 function showScreen(id){
-  document.querySelectorAll('.screen,.question-screen,.setup-screen,.choice-screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.screen,.question-screen,.setup-screen,.choice-screen,.lock-screen')
+    .forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 function goToSetup(){ renderSetup(); }
@@ -529,18 +655,29 @@ function renderBoard(){
   document.getElementById('board-title').textContent = 'Раунд '+(currentRound+1)+' — '+r.name;
   const g = document.getElementById('board-grid');
   g.innerHTML='';
-  g.innerHTML+='<div class="team-row-label">Отвечает команда</div>';
+  g.innerHTML+='<div class="team-row-label" role="rowheader">Отвечает команда</div>';
   TEAM_NAMES.forEach((name,i)=>{
     const active = selectedBoardTeam===i ? ' active' : '';
-    g.innerHTML+='<div class="team-cell'+active+'" onclick="selectBoardTeam('+i+')"><span class="team-num">'+(i+1)+'</span><span class="team-name-cell">'+name+'</span></div>';
+    const sel = selectedBoardTeam===i ? 'true' : 'false';
+    g.innerHTML+='<div class="team-cell'+active+'" role="gridcell" tabindex="0"'
+      +' aria-pressed="'+sel+'" aria-label="Команда '+(i+1)+': '+esc(name)+'"'
+      +' onclick="selectBoardTeam('+i+')"'
+      +' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();selectBoardTeam('+i+')}">'
+      +'<span class="team-num">'+(i+1)+'</span>'
+      +'<span class="team-name-cell">'+esc(name)+'</span></div>';
   });
   r.categories.forEach((cat,ci)=>{
-    g.innerHTML+='<div class="cat-label">'+cat+'</div>';
+    g.innerHTML+='<div class="cat-label" role="rowheader">'+esc(cat)+'</div>';
     for(let pos=0;pos<5;pos++){
       const key=currentRound+'-'+ci+'-'+pos;
       const used=USED[key];
       const cost=COST_MAP[pos];
-      g.innerHTML+='<div class="q-cell '+(used?'used':'')+'" '+(used?'':'onclick="selectQuestion('+ci+','+pos+')"')+'>'+cost+'</div>';
+      const label=esc(cat)+', '+cost+' баллов'+(used?', уже использован':'');
+      g.innerHTML+='<div class="q-cell '+(used?'used':'')+'" role="gridcell"'
+        +' aria-label="'+label+'"'
+        +(used?'':' tabindex="0" onclick="selectQuestion('+ci+','+pos+')"'
+                  +' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();selectQuestion('+ci+','+pos+')}()"')
+        +'>'+cost+'</div>';
     }
   });
 }
@@ -576,8 +713,8 @@ function selectQuestion(catIdx,posIdx){
     '<div class="q-answer-label">Правильный ответ: '+esc(answerText(q))+'</div>'+
     '<div class="q-explanation">'+explHtml+'</div>';
   document.getElementById('q-actions').innerHTML=
-    '<button class="q-action-btn accept" onclick="answerQuestion(true)">✓ Засчитать ('+TEAM_NAMES[currentTeam]+', +'+cost+')</button>'+
-    '<button class="q-action-btn reject" onclick="answerQuestion(false)">✗ Не засчитать</button>';
+    '<button class="q-action-btn accept" onclick="answerQuestion(true)">✓ Засчитать ('+esc(TEAM_NAMES[currentTeam])+', +'+cost+')</button>'+
+    '<button class="q-action-btn reject" onclick="answerQuestion(false)">✗ Ошибка (−'+cost+')</button>';
   showScreen('screen-question');
 }
 
@@ -598,13 +735,99 @@ function answerQuestion(correct){
   SCORES[currentTeam]=SCORES[currentTeam]+(correct?cost:-cost);
   selectedBoardTeam=-1;
   saveState();
+  updateUndoButton();
   renderBoard();
   showScreen('screen-board');
+}
+
+function updateUndoButton(){
+  const b=document.getElementById('undo-btn');
+  if(b) b.disabled = HISTORY.length===0;
+}
+
+function undoLastAnswer(){
+  if(HISTORY.length===0) return;
+  const h=HISTORY.pop();
+  const key=h.round+'-'+h.cat+'-'+h.pos;
+  delete USED[key];
+  const cost=COST_MAP[h.pos];
+  SCORES[h.team]=SCORES[h.team]-(h.correct?cost:-cost);
+  saveState();
+  updateUndoButton();
+  renderBoard();
+  showScreen('screen-board');
+  showToast('Ответ отменён: '+TEAM_NAMES[h.team]+' — '+h.categoryName+' '+h.cost);
 }
 
 function toggleScore(){
   renderScoreboard();
   document.getElementById('scoreboard').classList.toggle('open');
+}
+
+/* ── Финальный экран ─────────────────────────────────────────────────── */
+function showFinal(){
+  const sorted=TEAM_NAMES.map((name,i)=>({name,score:SCORES[i],idx:i}))
+                         .sort((a,b)=>b.score-a.score);
+  document.getElementById('final-sub').textContent =
+    'Прошли '+ROUNDS.length+' раунда · '+HISTORY.length+' '+
+    (HISTORY.length===1?'вопрос':'вопросов')+' · '+new Date().toLocaleDateString('ru-RU');
+
+  const podium=document.getElementById('final-podium');
+  const order=[sorted[1],sorted[0],sorted[2]].filter(Boolean);
+  const places=[2,1,3];
+  podium.innerHTML=order.map((t,i)=>
+    '<div class="podium-place p'+places[i]+'">'
+    +'<div class="podium-bar">'+places[i]+'</div>'
+    +'<div class="podium-name">'+esc(t.name)+'</div>'
+    +'<div class="podium-score">'+t.score+'</div></div>').join('');
+
+  const table=document.getElementById('final-table');
+  table.innerHTML=sorted.map((t,i)=>{
+    const hs=HISTORY.filter(h=>h.team===t.idx);
+    const ok=hs.filter(h=>h.correct).length;
+    const err=hs.length-ok;
+    return '<div class="final-row"><div class="fr-pos">#'+(i+1)+'</div>'
+      +'<div class="fr-name">'+esc(t.name)+'</div>'
+      +'<div class="fr-stats">✓ '+ok+' · ✗ '+err+' · '+hs.length+' '+
+        (hs.length===1?'ответ':'ответов')+'</div>'
+      +'<div class="fr-score">'+t.score+'</div></div>';
+  }).join('');
+
+  document.getElementById('final-screen').classList.add('open');
+}
+
+function closeFinal(){ document.getElementById('final-screen').classList.remove('open'); }
+
+function exportCSV(){
+  const rows=[['Викторина «Битва умов» — результаты',''],[]];
+  rows.push(['Дата',new Date().toLocaleString('ru-RU')]);
+  rows.push([]);
+  rows.push(['Команда','Баллы','Верных','Ошибок','Всего ответов']);
+  TEAM_NAMES.forEach((name,i)=>{
+    const hs=HISTORY.filter(h=>h.team===i);
+    const ok=hs.filter(h=>h.correct).length;
+    rows.push([name,SCORES[i],ok,hs.length-ok,hs.length]);
+  });
+  rows.push([]);
+  rows.push(['Раунд','Категория','Баллы','Команда','Результат','Вопрос']);
+  HISTORY.forEach(h=>{
+    const r=ROUNDS[h.round];
+    const q=r&&r.questions[h.cat*5+h.pos];
+    rows.push(['Раунд '+(h.round+1),h.categoryName,h.cost,TEAM_NAMES[h.team],
+               h.correct?'верно':'ошибка',q?q.question:'']);
+  });
+  const csv='\uFEFF'+rows.map(r=>r.map(c=>{
+    const s=String(c==null?'':c);
+    return /[",;\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;
+  }).join(';')).join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='Битва_умов_результаты_'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  showToast('Файл CSV скачан');
 }
 function renderScoreboard(){
   const c=document.getElementById('score-teams');
